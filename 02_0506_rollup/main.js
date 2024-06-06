@@ -1,12 +1,15 @@
-import { Pane } from "https://cdn.jsdelivr.net/npm/tweakpane@4.0.3/dist/tweakpane.min.js";
+//import { Pane } from "https://cdn.jsdelivr.net/npm/tweakpane@4.0.3/dist/tweakpane.min.js";
+import { Pane } from "./node_modules/tweakpane/dist/tweakpane.js";
 
 let canvas, gl, timeLoc;
 
-let MxLoc, MyLoc, MzLoc, rLoc, gLoc, bLoc;
+let MxLoc, MyLoc, MzLoc, rLoc, gLoc, bLoc, dxLoc, dyLoc;
 
 // OpenGL initialization function
 export function initGL() {
   canvas = document.getElementById("myCan");
+  canvas.addEventListener("mousemove", (e) => onMouseMove(e));
+  
   gl = canvas.getContext("webgl2");
   gl.clearColor(0.3, 0.47, 0.8, 1);
 
@@ -37,6 +40,8 @@ export function initGL() {
   uniform float R;
   uniform float G;
   uniform float B;
+  uniform float dX;
+  uniform float dY;
 
   vec2 CmplMulCmpl( vec2 A, vec2 B )
   {
@@ -45,13 +50,14 @@ export function initGL() {
 
   void main( void )
   {
+    vec2 D = vec2(-dX, dY) / 1000.0;
     vec2 M = vec2(-Mx, My) / 1000.0;
 
     vec2 Start = vec2(-1.0, -1.0) + M, End = vec2(1.0, 1.0) + M;
 
     vec2 DrawPos0 = (1.0 + Mz * DrawPos) / 2.0 * vec2(End.x - Start.x, End.y - Start.y) + vec2(Start.x, Start.y);
 
-    vec2 Z0 = 2.0 * vec2(0.35 + 0.3 * sin(Time * 0.5), 0.38 + 0.02 * sin((Time * 0.1 + 1.0) / 300.0)), Z = DrawPos0.xy;
+    vec2 Z0 = 2.0 * vec2(0.35 * My / 1080.0 + 0.3 * sin((Time + Mx / 100.0) * 0.5), 0.38 + 0.02 * sin(((Time + Mx / 100.0) * 0.1 + 1.0) / 300.0)), Z = DrawPos0.xy;
     int n = 0;    
 
     //Z0 = (Z0 + 1.0) / 2.0 * vec2(2400.0, 1080.0);
@@ -118,6 +124,8 @@ export function initGL() {
   rLoc = gl.getUniformLocation(prg, "R");
   gLoc = gl.getUniformLocation(prg, "G");
   bLoc = gl.getUniformLocation(prg, "B");
+  dxLoc = gl.getUniformLocation(prg, "dX");
+  dyLoc = gl.getUniformLocation(prg, "dY");
 
   gl.useProgram(prg);
 
@@ -158,6 +166,8 @@ export function render() {
     gl.uniform1f(rLoc, PARAMS.background.r);
     gl.uniform1f(gLoc, PARAMS.background.g);
     gl.uniform1f(bLoc, PARAMS.background.b);
+    gl.uniform1f(dxLoc, dx);
+    gl.uniform1f(dyLoc, dy);    
   }
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 } // End of 'render' function
@@ -166,7 +176,8 @@ console.log("CGSG forever!!! mylib.js imported");
 
 let Mx = 0,
   My = 0,
-  Mz = 1;
+  Mz = 1,
+  dx = 0, dy = 0;
 const PARAMS = {
   //key: "#ff0055ff",
   background: { r: 0.0, g: 255.0, b: 0.0 },
@@ -174,14 +185,40 @@ const PARAMS = {
 let pane;
 let paneR, paneG, paneB;
 
-export function onClick(event) {
+function onClick(event) {
   let speed = 30,
     sz = 0.04;
 
-  if (event.key == "ArrowLeft") Mx += speed;
-  if (event.key == "ArrowRight") Mx -= speed;
-  if (event.key == "ArrowUp") My += speed;
-  if (event.key == "ArrowDown") My -= speed;
+  if (event.key == "ArrowLeft") dx += speed;
+  if (event.key == "ArrowRight") dx -= speed;
+  if (event.key == "ArrowUp") dy += speed;
+  if (event.key == "ArrowDown") dy -= speed;
   if (event.key == "PageUp") Mz -= sz;
   if (event.key == "PageDown") Mz += sz;
 }
+
+function onScroll(event) {
+  let sz = 0.01;
+
+  Mz += event.deltaY * sz;
+}
+
+function onMouseMove(event) {
+  Mx = event.clientX;
+  My = event.clientY;
+}
+
+
+window.addEventListener("load", () => {
+  initGL();
+  const draw = () => {
+    // drawing
+    render();
+
+    // animation register
+    window.requestAnimationFrame(draw);
+  };
+  draw();
+});
+window.addEventListener("keydown", (e) => onClick(e));
+window.addEventListener("wheel", (e) => onScroll(e));

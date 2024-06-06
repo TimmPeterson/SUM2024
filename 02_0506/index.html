@@ -5,13 +5,13 @@
     <meta name="google" content="notranslate">    
     <meta charset="utf-8" />
     <link rel="shortcut icon" href="m.png" type="image/png" />
-    <title>CGSG:VG4 CGSG'SummerPractice2024. G.Julia Drawing</title>
+    <title>CGSG:TP5 CGSG'SummerPractice2024. G.Julia Drawing</title>
   </head>
   <body>
-    <canvas id="myCan" width="1000px" height="1000px" style="border: 2px solid red"></canvas>
+    <canvas id="myCan" width="2460" height="1080"></canvas>
     <script type="module">
       import * as vigl from "./mylib.js";
- 
+
       window.addEventListener("load", () => {
         vigl.initGL();
         const draw = () => {
@@ -23,7 +23,7 @@
         };
         draw();
       });
-      window.addEventListener("mousemove", (e) => vigl.onClick(e));
+      window.addEventListener("keydown", (e) => vigl.onClick(e));
     </script>
   </body>
 </html>
