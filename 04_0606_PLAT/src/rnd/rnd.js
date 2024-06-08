@@ -43,7 +43,7 @@ export class Render {
         this.height = rect.bottom - rect.top + 1;
 
         this.gl = canvas.getContext("webgl2");
-        this.gl.clearColor(0.3, 0.47, 0.8, 1);
+        this.gl.clearColor(0.9, 0.9, 0.9, 1);
 
         this.gl.enable(this.gl.DEPTH_TEST);
         // Shader creation
@@ -52,17 +52,18 @@ export class Render {
         in vec3 InPosition;
         in vec3 InNormal;
             
-        out vec2 DrawPos;
+        out vec3 DrawPos;
         out vec3 DrawNormal;
 
         uniform float Time;
         uniform mat4 MatrProj;
+        uniform mat4 MatrW;
         
         void main( void )
         {
             gl_Position = MatrProj * vec4(InPosition, 1);
-            DrawPos = InPosition.xy;
-            DrawNormal = mat3(transpose(inverse(MatrProj))) * InNormal;
+            DrawPos = vec3(MatrW * vec4(InPosition.xyz, 1.0));
+            DrawNormal = mat3(transpose(inverse(MatrW))) * InNormal;
         }
         `;
 
@@ -71,20 +72,22 @@ export class Render {
         
         out vec4 OutColor;
         
-        in vec2 DrawPos;
+        in vec3 DrawPos;
         in vec3 DrawNormal;
 
         uniform float Time;
 
         void main( void )
         {
-            vec3 L = normalize(vec3(0, 1, 1));
+            vec3 L = normalize(vec3(0, 0.5, 1));
+            vec3 N = normalize(DrawNormal);
+            
+            N = faceforward(N, normalize(DrawPos), N);
+            
+            float k = dot(L, normalize(N));
 
-            float k = max(0.1, dot(L, normalize(DrawNormal)));
-
-            faceforward(normalize(DrawNormal), vec3(0, 0, 1), normalize(DrawNormal));
-
-            OutColor = vec4(vec3(DrawPos.x, DrawPos.y, 1.0), 1.0);//vec4(normalize(DrawNormal), 1.0);//vec4(k * vec3(DrawPos.x, DrawPos.y, 1.0), 1.0);
+            OutColor = vec4(k * vec3(1, 0.5, 0.5), 1.0);
+            //OutColor = vec4(N, 1.0);
         }
         `;
 
@@ -108,6 +111,7 @@ export class Render {
         this.posLoc = this.gl.getAttribLocation(prg, "InPosition");
         this.normLoc = this.gl.getAttribLocation(prg, "InNormal");
         this.matrProjLoc = this.gl.getUniformLocation(prg, "MatrProj");
+        this.matrWLoc = this.gl.getUniformLocation(prg, "MatrW");
         this.gl.useProgram(prg);
     }
 }

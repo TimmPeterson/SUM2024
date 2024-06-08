@@ -95,6 +95,7 @@ export class Prim {
         m = world.mul(m);
 
         rnd.gl.uniformMatrix4fv(rnd.matrProjLoc, false, new Float32Array([].concat(...m.a)));
+        rnd.gl.uniformMatrix4fv(rnd.matrWLoc, false, new Float32Array([].concat(...world.a)));
 
         rnd.gl.bindVertexArray(this.vertexArrayId);
         rnd.gl.bindBuffer(rnd.gl.ELEMENT_ARRAY_BUFFER, this.IndexBufferId);

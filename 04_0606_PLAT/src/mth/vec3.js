@@ -16,6 +16,9 @@ class _vec3 {
     norm() {
         let len = this.len();
 
+        if (len == 0)
+            return vec3(0);
+
         if (len == 1)
             return vec3(this);
         return this.div(len);
