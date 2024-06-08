@@ -59,7 +59,7 @@ function initGL() {
    
     DrawPos0 *= Mz;
   
-    vec2 Z0 = 2.0 * vec2(0.3 * sin((Time + Mx * 0.0 / 100.0) * 0.5), 0.38 + 0.02 * sin(((Time + Mx * 0.0 / 100.0) * 0.1 + 1.0) / 300.0)), Z = DrawPos0.xy;
+    vec2 Z0 = 2.0 * vec2(0.35 * My / 1080.0 + 0.3 * sin((Time * 0.0 + Mx * 0.0 / 100.0) * 0.5), 0.38 + 0.02 * sin(((Time * 0.0 + Mx * 0.0 / 100.0) * 0.1 + 1.0) / 300.0)), Z = DrawPos0.xy;
     int n = 0;    
 
     //Z0 = (Z0 + 1.0) / 2.0 * vec2(2400.0, 1080.0);

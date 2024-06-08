@@ -1,15 +1,15 @@
-//const { Pane } = require("./node_modules/tweakpane/dist/tweakpane.js");
+//import { Pane } from "https://cdn.jsdelivr.net/npm/tweakpane@4.0.3/dist/tweakpane.min.js";
+import { Pane } from "./node_modules/tweakpane/dist/tweakpane.js";
 
 let canvas, gl, timeLoc;
 
 let MxLoc, MyLoc, MzLoc, rLoc, gLoc, bLoc, dxLoc, dyLoc;
 
 // OpenGL initialization function
-function initGL() {
+export function initGL() {
   canvas = document.getElementById("myCan");
   canvas.addEventListener("mousemove", (e) => onMouseMove(e));
-  canvas.addEventListener("wheel", (e) => onScroll(e));
-
+  
   gl = canvas.getContext("webgl2");
   gl.clearColor(0.3, 0.47, 0.8, 1);
 
@@ -51,15 +51,13 @@ function initGL() {
   void main( void )
   {
     vec2 D = vec2(-dX, dY) / 1000.0;
-    vec2 M = D;//(vec2(-Mx, My) / vec2(2460.0, 1080.0)) * 2.0 + vec2(1.0, -1.0);
+    vec2 M = vec2(-Mx, My) / 1000.0;
 
     vec2 Start = vec2(-1.0, -1.0) + M, End = vec2(1.0, 1.0) + M;
 
-    vec2 DrawPos0 = (1.0 + DrawPos) / 2.0 * vec2(End.x - Start.x, End.y - Start.y) + vec2(Start.x, Start.y);
-   
-    DrawPos0 *= Mz;
-  
-    vec2 Z0 = 2.0 * vec2(0.3 * sin((Time + Mx * 0.0 / 100.0) * 0.5), 0.38 + 0.02 * sin(((Time + Mx * 0.0 / 100.0) * 0.1 + 1.0) / 300.0)), Z = DrawPos0.xy;
+    vec2 DrawPos0 = (1.0 + Mz * DrawPos) / 2.0 * vec2(End.x - Start.x, End.y - Start.y) + vec2(Start.x, Start.y);
+
+    vec2 Z0 = 2.0 * vec2(0.35 * My / 1080.0 + 0.3 * sin((Time + Mx / 100.0) * 0.5), 0.38 + 0.02 * sin(((Time + Mx / 100.0) * 0.1 + 1.0) / 300.0)), Z = DrawPos0.xy;
     int n = 0;    
 
     //Z0 = (Z0 + 1.0) / 2.0 * vec2(2400.0, 1080.0);
@@ -68,14 +66,14 @@ function initGL() {
     Z.x *= 2460.0 / 1080.0;
     Z0.x *= 2460.0 / 1080.0;
 
-    while (n < 255 && dot(Z, Z) < 4.0)
+    while (n < 80 && dot(Z, Z) < 4.0)
     {
       Z = CmplMulCmpl(CmplMulCmpl(Z, Z), Z);//vec2(Z.x * Z.x - Z.y * Z.y, Z.x * Z.y + Z.x * Z.y);
       Z = Z + Z0;
       n++;
     }
 
-    OutColor = vec4(vec3(3.0 * vec3(float(n) / 250.0, float(n) / 230.0, float(n) / 240.0)) * vec3(R, G, B) / 255.0, 1.0);
+    OutColor = vec4(vec3(3.0 * vec3(float(n) / 50.0, float(n) / 30.0, float(n) / 40.0)) * vec3(R, G, B) / 255.0, 1.0);
   }
   `;
   let vs = loadShader(gl.VERTEX_SHADER, vs_txt),
@@ -131,8 +129,8 @@ function initGL() {
 
   gl.useProgram(prg);
 
-  //const pane = new Pane();
-  //pane.addBinding(PARAMS, "background");
+  const pane = new Pane();
+  pane.addBinding(PARAMS, "background");
 } // End of 'initGL' function
 
 // Load and compile shader function
@@ -150,7 +148,7 @@ function loadShader(shaderType, shaderSource) {
 let x = 1;
 
 // Main render frame function
-function render() {
+export function render() {
   // console.log(`Frame ${x++}`);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -182,7 +180,7 @@ let Mx = 0,
   dx = 0, dy = 0;
 const PARAMS = {
   //key: "#ff0055ff",
-  background: { r: 255.0, g: 255.0, b: 255.0 },
+  background: { r: 0.0, g: 255.0, b: 0.0 },
 };
 let pane;
 let paneR, paneG, paneB;
@@ -200,23 +198,14 @@ function onClick(event) {
 }
 
 function onScroll(event) {
-  let sz = 0.001;
-  
-  event.preventDefault();
+  let sz = 0.01;
+
   Mz += event.deltaY * sz;
 }
 
 function onMouseMove(event) {
-  if (event.buttons == 1)
-  {
-    dx += event.movementX;
-    dy += event.movementY * 2460 / 1080;
-  }
-
   Mx = event.clientX;
   My = event.clientY;
-
-  event.preventDefault();
 }
 
 
@@ -232,3 +221,4 @@ window.addEventListener("load", () => {
   draw();
 });
 window.addEventListener("keydown", (e) => onClick(e));
+window.addEventListener("wheel", (e) => onScroll(e));
