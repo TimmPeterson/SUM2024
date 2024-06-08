@@ -3,6 +3,7 @@ import { vec3 } from "./mth/vec3.js"
 import { mat4, matrRotate, matrTranslate } from "./mth/mat4.js"
 import { Prim, vertex } from "./rnd/res/prim.js"
 import { Figure } from "./plat/plat.js"
+import { Shader } from "./rnd/res/shd.js"
 
 console.log("MAIN LOADED");
 
@@ -11,10 +12,6 @@ let rnd1, rnd2, rnd3, rnd4, rnd5;
 function main() {
 
   let canvas1 = document.getElementById("myCan1");
-  let canvas2 = document.getElementById("myCan2");
-  let canvas3 = document.getElementById("myCan3");
-  let canvas4 = document.getElementById("myCan4");
-  let canvas5 = document.getElementById("myCan5");
 
   let x = vec3(1, 3, 5);
   let v = vec3(x);
@@ -22,11 +19,8 @@ function main() {
   console.log(v);
 
   rnd1 = new Render(canvas1);
-  rnd2 = new Render(canvas2);
-  rnd3 = new Render(canvas3);
-  rnd4 = new Render(canvas4);
-  rnd5 = new Render(canvas5);
 
+  let shd = new Shader(rnd1, "default");
   /*
   let z = 0;
   let vertixes = [
@@ -50,20 +44,9 @@ function main() {
   //let prim = new Prim(rnd1, vertexes, indicies);
 
   let fig = new Figure();
-  let fig1 = new Figure();
 
-  fig.setOctahedron();
-  let prim1 = fig.makePrim(rnd1);
-  fig1.setDodecahedron();
-  let prim2 = fig1.makePrim(rnd2);
-  fig.setIcohedron();
-  let prim3 = fig.makePrim(rnd3);
-  fig.setCube();
-  let prim4 = fig.makePrim(rnd4);
-  fig.setTetrahedron();
-  let prim5 = fig.makePrim(rnd5);
-  //let prim3 = fig.makePrim(rnd1);
-
+  fig.setDodecahedron();
+  let prim1 = fig.makePrim(shd);
 
   const draw = () => {
     // drawing
@@ -75,16 +58,7 @@ function main() {
       date.getMilliseconds() / 1000;
 
     rnd1.renderStart();
-    prim1.render(rnd1, matrRotate(t, vec3(0, 1, 0)).mul(matrTranslate(vec3(0, 0, -3))));//matrRotate(t, vec3(0, 1, 0)));
-    rnd2.renderStart();
-    prim2.render(rnd2, matrRotate(t, vec3(0, 1, 0)).mul(matrTranslate(vec3(0, 0, -5))));//matrRotate(t, vec3(0, 1, 0)));
-    rnd3.renderStart();
-    prim3.render(rnd3, matrRotate(t, vec3(0, 1, 0)).mul(matrTranslate(vec3(0, 0, -3))));//matrRotate(t, vec3(0, 1, 0)));
-    rnd4.renderStart();
-    prim4.render(rnd4, matrRotate(t, vec3(0, 1, 0)).mul(matrTranslate(vec3(0, 0, -3))));//matrRotate(t, vec3(0, 1, 0)));
-    rnd5.renderStart();
-    prim5.render(rnd5, matrRotate(6, vec3(0, 0, 1)).mul(matrRotate(t, vec3(0, 1, 0)).mul(matrTranslate(vec3(0, -0.3, -2.2)))));
-
+    prim1.render(matrRotate(t, vec3(0, 1, 0)).mul(matrTranslate(vec3(0, 0, -3))));//matrRotate(t, vec3(0, 1, 0)));
     // animation register
     window.requestAnimationFrame(draw);
   };

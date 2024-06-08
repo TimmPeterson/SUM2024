@@ -13,7 +13,7 @@ export class Render {
         return shader;
     } // End of 'loadShader' function
 
-    render() {
+    renderStart() {
         // console.log(`Frame ${x++}`);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
         this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
@@ -108,11 +108,12 @@ export class Render {
 
         // Uniform data
         this.timeLoc = this.gl.getUniformLocation(prg, "Time");
-        this.posLoc = this.gl.getAttribLocation(prg, "InPosition");
-        this.normLoc = this.gl.getAttribLocation(prg, "InNormal");
         this.matrProjLoc = this.gl.getUniformLocation(prg, "MatrProj");
         this.matrWLoc = this.gl.getUniformLocation(prg, "MatrW");
         this.gl.useProgram(prg);
+
+        this.posLoc = this.gl.getAttribLocation(prg, "InPosition");
+        this.normLoc = this.gl.getAttribLocation(prg, "InNormal");
     }
 }
 
