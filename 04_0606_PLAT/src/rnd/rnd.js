@@ -86,7 +86,7 @@ export class Render {
             
             float k = dot(L, normalize(N));
 
-            OutColor = vec4(k * vec3(1, 0.5, 0.5), 1.0);
+            OutColor = vec4(k * vec3(0, 0.7, 0.5), 1.0);
             //OutColor = vec4(N, 1.0);
         }
         `;

@@ -96,3 +96,12 @@ export function matrTranslate(t) {
         t.x, t.y, t.z, 1
     );
 }
+
+export function matrScale(s) {
+    return mat4(
+        s.x, 0, 0, 0,
+        0, s.y, 0, 0,
+        0, 0, s.z, 0,
+        0, 0, 0, 1
+    );
+}
