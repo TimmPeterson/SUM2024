@@ -174,6 +174,36 @@ export class Figure {
         //this.vertexes = [edge1, layer1, layer2, edge2];
     }
 
+    setStar() {
+        this.vertexes = [];
+        this.setDodecahedron();
+
+        let verts = [];
+
+        for (let i = 0; i < this.vertexes.length; i++) {
+            let p = vec3(0);
+
+            for (let v of this.vertexes[i]) {
+                p = p.add(v);
+            }
+            p = p.div(5);
+            p = p.mul(3);
+
+            let tris = 
+            [
+                [this.vertexes[i][0], this.vertexes[i][1], p], 
+                [this.vertexes[i][1], this.vertexes[i][2], p], 
+                [this.vertexes[i][2], this.vertexes[i][3], p], 
+                [this.vertexes[i][3], this.vertexes[i][4], p], 
+                [this.vertexes[i][4], this.vertexes[i][0], p], 
+            ];
+            for (let i = 0; i < 5; i++)
+                verts.push(tris[i]);
+        }
+
+        this.vertexes = verts;
+    }
+
     makePrim(rnd) {
         let indicies = [];
         let vertexes = [];

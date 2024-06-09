@@ -1,55 +1,37 @@
-import { Render } from "./rnd/rnd.js"
-import { vec3 } from "./mth/vec3.js"
+import { Render        } from "./rnd/rnd.js"
+import { vec3          } from "./mth/vec3.js"
 import { mat4, matrRotate, matrTranslate } from "./mth/mat4.js"
-import { Prim, vertex } from "./rnd/res/prim.js"
-import { Figure } from "./plat/plat.js"
-import { Shader } from "./rnd/res/shd.js"
+import { Prim, vertex  } from "./rnd/res/prim.js"
+import { Figure        } from "./plat/plat.js"
+import { Shader        } from "./rnd/res/shd.js"
+import { Timer         } from "./timer/timer.js"
+import { UniformBuffer } from "./rnd/res/buf.js"
 
 console.log("MAIN LOADED");
 
-let rnd1, rnd2, rnd3, rnd4, rnd5;
+let rnd1;
 
 function main() {
 
+  // Timer creation
+  let timer = new Timer();
+
+  // Rendering context initializing
   let canvas1 = document.getElementById("myCan1");
-
-  let x = vec3(1, 3, 5);
-  let v = vec3(x);
-
-  console.log(v);
-
   rnd1 = new Render(canvas1);
+  let shd1 = new Shader(rnd1, "default");
+  
+  // Primitive creation
+  let fig1 = new Figure();
+  fig1.setStar();
+  let prim1 = fig1.makePrim(shd1);
 
-  let shd = new Shader(rnd1, "default");
-  /*
-  let z = 0;
-  let vertixes = [
-    vertex(vec3(-1, -1, -1), vec3(0)), vertex(vec3(-1, 1, -1), vec3(0)), vertex(vec3(1, 1, -1), vec3(0)), vertex(vec3(1, -1, -1), vec3(0)),
-    vertex(vec3(-1, -1, 1), vec3(0)), vertex(vec3(-1, 1, 1), vec3(0)), vertex(vec3(1, 1, 1), vec3(0)), vertex(vec3(1, -1, 1), vec3(0))
-  ];
-  let indicies = [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 0, 1, 4, 1, 4, 5, 2, 6, 7, 2, 7, 3, 1, 5, 6, 1, 6, 2, 0, 4, 7, 0, 7, 3];
-  */
+  let a = [1, 1, 1, 1, 1, 1, 1, 1, 1];
 
-  let vertexes = [
-    vertex(vec3(-1, -1, 0), vec3(0, 0, 1)),
-    vertex(vec3(-1, 1, 0), vec3(0, 0, 1)),
-    vertex(vec3(1, 1, 0), vec3(0, 0, 1)),
-    vertex(vec3(1, -1, 0), vec3(0, 0, 1))
-  ]
+  let UBO = new UniformBuffer(shd1, "u_testBlock", 64, 0);
 
-  let indicies = [
-    0, 1, 2, 2, 3, 0
-  ]
-
-  //let prim = new Prim(rnd1, vertexes, indicies);
-
-  let fig = new Figure();
-
-  fig.setDodecahedron();
-  let prim1 = fig.makePrim(shd);
-
+  // Each frame rendering function declaration
   const draw = () => {
-    // drawing
 
     const date = new Date();
     let t =
@@ -57,13 +39,25 @@ function main() {
       date.getSeconds() +
       date.getMilliseconds() / 1000;
 
+    // timer reponse
+    timer.response();
+
+    // frame render
     rnd1.renderStart();
-    prim1.render(matrRotate(t, vec3(0, 1, 0)).mul(matrTranslate(vec3(0, 0, -3))));//matrRotate(t, vec3(0, 1, 0)));
-    // animation register
+    prim1.render(matrRotate(t, vec3(0, 1, 0)).mul(matrTranslate(vec3(0, 0, -10))));//matrRotate(t, vec3(0, 1, 0)));
+    
+    
+    if (UBO.loaded == false && UBO.shd.prg != null) {
+      UBO.apply();
+      UBO.update(new Float32Array(a));
+    }
+    
+
     window.requestAnimationFrame(draw);
   };
   draw();
 }
+
 
 window.addEventListener("load", () => {
   main();

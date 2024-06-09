@@ -66,6 +66,33 @@ export class Shader {
         this.matrWLoc = this.rnd.gl.getUniformLocation(this.prg, "MatrW");
         this.posLoc = this.rnd.gl.getAttribLocation(this.prg, "InPosition");
         this.normLoc = this.rnd.gl.getAttribLocation(this.prg, "InNormal");
+
+        // Shader uniforms
+        this.uniforms = {};
+        const countUniforms = this.rnd.gl.getProgramParameter(this.prg, this.rnd.gl.ACTIVE_UNIFORMS);
+        for (let i = 0; i < countUniforms; i++) {
+            const info = this.rnd.gl.getActiveUniform(this.prg, i);
+            this.uniforms[info.name] = {
+            name: info.name,
+            type: info.type,
+            size: info.size,
+            loc: this.rnd.gl.getUniformLocation(this.prg, info.name),
+            };
+        }
+
+        // Shader uniform blocks
+        this.uniformBlocks = {};
+        const countUniformBlocks = this.rnd.gl.getProgramParameter(this.prg, this.rnd.gl.ACTIVE_UNIFORM_BLOCKS);
+        for (let i = 0; i < countUniformBlocks; i++) {
+            const block_name = this.rnd.gl.getActiveUniformBlockName(this.prg, i);
+            const index = this.rnd.gl.getUniformBlockIndex(this.prg, block_name);
+            this.uniformBlocks[block_name] = {
+                name: block_name,
+                index: index,
+                size: this.rnd.gl.getActiveUniformBlockParameter(this.prg, index, this.rnd.gl.UNIFORM_BLOCK_DATA_SIZE),
+                bind: this.rnd.gl.getActiveUniformBlockParameter(this.prg, index, this.rnd.gl.UNIFORM_BLOCK_BINDING),
+            };
+        }
     }
 
     apply() {
