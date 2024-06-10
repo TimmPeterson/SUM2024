@@ -61,9 +61,6 @@ export class Shader {
     }
 
     updateShaderData() {
-        this.timeLoc = this.rnd.gl.getUniformLocation(this.prg, "Time");
-        this.matrProjLoc = this.rnd.gl.getUniformLocation(this.prg, "MatrProj");
-        this.matrWLoc = this.rnd.gl.getUniformLocation(this.prg, "MatrW");
         this.posLoc = this.rnd.gl.getAttribLocation(this.prg, "InPosition");
         this.normLoc = this.rnd.gl.getAttribLocation(this.prg, "InNormal");
 
@@ -73,10 +70,10 @@ export class Shader {
         for (let i = 0; i < countUniforms; i++) {
             const info = this.rnd.gl.getActiveUniform(this.prg, i);
             this.uniforms[info.name] = {
-            name: info.name,
-            type: info.type,
-            size: info.size,
-            loc: this.rnd.gl.getUniformLocation(this.prg, info.name),
+                name: info.name,
+                type: info.type,
+                size: info.size,
+                loc: this.rnd.gl.getUniformLocation(this.prg, info.name),
             };
         }
 
@@ -93,6 +90,10 @@ export class Shader {
                 bind: this.rnd.gl.getActiveUniformBlockParameter(this.prg, index, this.rnd.gl.UNIFORM_BLOCK_BINDING),
             };
         }
+
+        this.rnd.matrixUBO.apply(this);
+        this.rnd.primUBO.apply(this);
+        this.rnd.timeUBO.apply(this);
     }
 
     apply() {

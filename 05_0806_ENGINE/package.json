@@ -11,6 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "hammer": "^0.0.5",
+    "hammerjs": "^2.0.8",
     "http-server": "^14.1.1",
     "rollup": "^4.18.0"
   }

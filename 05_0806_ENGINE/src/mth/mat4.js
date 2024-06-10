@@ -11,13 +11,6 @@ class _mat4 {
         [a30, a31, a32, a33]];
     }
 
-    frustum(left, right, bottom, top, near, far) {
-        this.a = [[2 * near / (right - left), 0, 0, 0],
-        [0, 2 * near / (top - bottom), 0, 0],
-        [(right + left) / (right - left), (top + bottom) / (top - bottom), -(far + near) / (far - near), -1],
-        [0, 0, -2 * near * far / (far - near), 0]];
-    }
-
     mul(m) {
         return mat4(
             this.a[0][0] * m.a[0][0] + this.a[0][1] * m.a[1][0] + this.a[0][2] * m.a[2][0] + this.a[0][3] * m.a[3][0],
@@ -36,6 +29,10 @@ class _mat4 {
             this.a[3][0] * m.a[0][1] + this.a[3][1] * m.a[1][1] + this.a[3][2] * m.a[2][1] + this.a[3][3] * m.a[3][1],
             this.a[3][0] * m.a[0][2] + this.a[3][1] * m.a[1][2] + this.a[3][2] * m.a[2][2] + this.a[3][3] * m.a[3][2],
             this.a[3][0] * m.a[0][3] + this.a[3][1] * m.a[1][3] + this.a[3][2] * m.a[2][3] + this.a[3][3] * m.a[3][3]);
+    }
+
+    linearize() {
+        return [].concat(...this.a);
     }
 }
 
@@ -94,5 +91,36 @@ export function matrTranslate(t) {
         0, 1, 0, 0,
         0, 0, 1, 0,
         t.x, t.y, t.z, 1
+    );
+}
+
+export function matrScale(s) {
+    return mat4(
+        s.x, 0, 0, 0,
+        0, s.y, 0, 0,
+        0, 0, s.z, 0,
+        0, 0, 0, 1
+    )
+}
+
+export function matrFrustum(left, right, bottom, top, near, far) {
+    return mat4(
+        2 * near / (right - left), 0, 0, 0,
+        0, 2 * near / (top - bottom), 0, 0,
+        (right + left) / (right - left), (top + bottom) / (top - bottom), -(far + near) / (far - near), -1,
+        0, 0, -2 * near * far / (far - near), 0
+    );
+}
+
+export function matrView(loc, at, up1) {
+    let
+        dir = at.sub(loc).norm(),
+        right = dir.cross(up1).norm(),
+        up = right.cross(dir).norm();
+    return mat4(
+        right.x, up.x, -dir.x, 0,
+        right.y, up.y, -dir.y, 0,
+        right.z, up.z, -dir.z, 0,
+        -loc.dot(right), -loc.dot(up), loc.dot(dir), 1
     );
 }

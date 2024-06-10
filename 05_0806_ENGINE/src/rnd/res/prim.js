@@ -1,6 +1,6 @@
 import { Render } from "../rnd.js"
 import { vec3 } from "../../mth/vec3.js"
-import { mat4 } from "../../mth/mat4.js"
+import { mat4, matrFrustum } from "../../mth/mat4.js"
 import { Shader } from "../res/shd.js"
 
 class _vertex {
@@ -90,29 +90,17 @@ export class Prim {
     }
 
     render(world) {
-        let m = mat4(1);
 
-        let rx = this.shd.rnd.projSize, ry = this.shd.rnd.projSize;
-
-        /* Correct aspect ratio */
-        if (this.shd.rnd.width >= this.shd.rnd.height)
-            rx *= this.shd.rnd.width / this.shd.rnd.height;
-        else
-            ry *= this.shd.rnd.height / this.shd.rnd.width;
-
-        m.frustum(-rx / 2, rx / 2, -ry / 2, ry / 2,
-            this.shd.rnd.projDist, this.shd.rnd.farClip);
-
-        m = world.mul(m);
-
+        // Recreating primitive if it wasn't created
+        // (because of shader async initialization)
         if (this.shd.prg != null && this.loaded == false) {
             this.create(this.shd, this.vertexes, this.indicies);
+            this.loaded = true;
         }
 
+        // Drawing primitive if shader is loaded
         if (this.shd.apply()) {
-            this.shd.rnd.gl.uniformMatrix4fv(this.shd.matrProjLoc, false, new Float32Array([].concat(...m.a)));
-            this.shd.rnd.gl.uniformMatrix4fv(this.shd.matrWLoc, false, new Float32Array([].concat(...world.a)));
-
+            this.shd.rnd.primUBO.update(new Float32Array(world.linearize()));
             this.shd.rnd.gl.bindVertexArray(this.vertexArrayId);
             this.shd.rnd.gl.bindBuffer(this.shd.rnd.gl.ELEMENT_ARRAY_BUFFER, this.IndexBufferId);
             this.shd.rnd.gl.drawElements(this.shd.rnd.gl.TRIANGLES, this.numOfElements, this.shd.rnd.gl.UNSIGNED_INT, 0);
