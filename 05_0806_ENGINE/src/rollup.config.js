@@ -7,14 +7,14 @@ export default {
         dir: "../output",
         format: "iife",
         sourcemap: "inline",
-        name:"main.js"
+        name: "main.js",
     },
     plugins: [
         resolve({
             jsnext: true,
             main: true,
             browser: true,
-          }),
+        }),
         // terser()
     ]
 }

@@ -9,8 +9,6 @@ import { UniformBuffer } from "./rnd/res/buf.js"
 
 console.log("MAIN LOADED");
 
-let hammerjs = require("hammerjs")
-
 let rnd1;
 
 function main() {
@@ -48,7 +46,8 @@ function main() {
     prims[i] = figures[i].makePrim(shaders[i]);
     UBOs[i] = new UniformBuffer(renders[i], "u_testBlock", 64, i + 1);
     UBOs[i].update(new Float32Array(a));
-    canvases[i].hm = new Hammer(canvases[i]);
+    canvases[i].hm = Hammer(canvases[i]);
+    canvases[i].hm.get("rotate").set({ enable: true });
   }
 
   // Timer creation
@@ -69,13 +68,21 @@ function main() {
         scales[i] = scales[i].mul(matrScale(vec3(1.1)));
     };
 
+    let d, old = 0;
     let f3 = e => {
-      rots[i] = rots[i].mul(matrRotate(e.angle, vec3(0, 0, 1)));
+      d = e.angle - old;
+      old = e.angle;
+      rots[i] = rots[i].mul(matrRotate(d, vec3(0, 0, 1)));
+    };
+    let f4 = e => {
+      rots[i] = rots[i].mul(matrRotate(rotSpeed * 0.1 * e.deltaX, vec3(0, 1, 0)));
+      rots[i] = rots[i].mul(matrRotate(rotSpeed * 0.1 * e.deltaY, vec3(1, 0, 0)));
     };
 
-    canvases[i].addEventListener("mousemove", f1);
+    //canvases[i].addEventListener("mousemove", f1);
     canvases[i].addEventListener("wheel", f2);
-    canvases[i].hm.on("rotate", f1);
+    canvases[i].hm.on("rotate", f3);
+    canvases[i].hm.on("pan", f4);
   }
 
   // Each frame rendering function declaration
