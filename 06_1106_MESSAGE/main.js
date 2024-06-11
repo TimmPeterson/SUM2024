@@ -1,77 +1,72 @@
 import http from "node:http";
-import fs from "node:fs/promises";
+import fs from "node:fs/promises"; // for working with files
 import { WebSocketServer } from "ws"
 import express from "express"
 
-/*
-const requestListen = async (req, res) => {
-    console.log(req.url);
-    if (req.url == "/") {
-        const contents = await fs.readFile(process.cwd() + "/client/index.html");
-        res.setHeader("Content-Type", "text/html");
-        res.writeHead(200);
-        res.end(contents);
-    } else if (req.url.endsWith(".js")) {
-        const contents = await fs.readFile(process.cwd() + "/client" + req.url);
-        res.setHeader("Content-Type", "text/html");
-        res.writeHead(200);
-        res.end(contents);
-    }
-}
-*/
-
-const app = express();
-
-class Message {
-    constructor(user, text) {
-        this.user = user;
-        this.text = text;
-    }
-}
-
+// Array with current pool of messages
 let messages = [];
 
+// Array with current pool of sockets (clients)
+// To send some messages to all of them
 let sockets = [];
 
+// Express for skip unnecessary messages
+const app = express();
+
+// Message counter
+// For debug and for example
 let counter = 0;
 app.get("/", (req, res, next) => {
     counter = counter + 1;
     console.log(counter);
     next();
-});
+    });
 
 app.use(express.static("client"));
 
+// Creating http server
 const server = http.createServer(app);
 
+// Creating server socket to send messages to clients
 const wss = new WebSocketServer({ server });
 
-
+// Event on server socket connecting to client socket
 wss.on("connection", (ws) => {
+    // Event on getting message on server from client socket
     ws.on("message", (message) => {
-        //console.log(JSON.parse(message));
+        // Message should be an array of symbols.
+        // We can convert it to string using msg.toString().
+        // And then we can get an object from it using JSON.parse(msg) .
+        // We should always send a string.
+        // So we use JSON.stringify(msg) to convert object o string 
 
-        messages.push(JSON.parse(message.toString()));
-        for (let sck of sockets)
-            sck.send(JSON.stringify(messages));
+        let msg = JSON.parse(message.toString())
+
+        if (msg.client_start != undefined) {
+            ws.send(JSON.stringify(messages));
+        } else {
+            messages.push(msg);
+            for (let sck of sockets)
+                sck.send(JSON.stringify(messages));
+        }
     });
+
+    // Removing socket from pool of sockets with callback on closing event 
     ws.on("close", () => {
         sockets.slice(sockets.indexOf(ws), 1);
     });
 
-    //ws.send(JSON.stringify(messages));
+    // Pushing current client socket to the pool of sockets on connection event 
     sockets.push(ws);
 });
 
+
+// Some stuff for debug
 const host = "localhost";
 const port = 8000;
-
 server.listen(port, host, () => {
     console.log(`server started on http://${host}:${port}`);
 });
 
-const main = () => {
-
-}
-
+const main = () => {}
 main();

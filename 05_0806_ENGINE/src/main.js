@@ -75,8 +75,8 @@ function main() {
       rots[i] = rots[i].mul(matrRotate(d, vec3(0, 0, 1)));
     };
     let f4 = e => {
-      rots[i] = rots[i].mul(matrRotate(rotSpeed * 0.1 * e.deltaX, vec3(0, 1, 0)));
-      rots[i] = rots[i].mul(matrRotate(rotSpeed * 0.1 * e.deltaY, vec3(1, 0, 0)));
+      rots[i] = rots[i].mul(matrRotate(0.1 * e.velocityX, vec3(0, 1, 0)));
+      rots[i] = rots[i].mul(matrRotate(0.1 * e.velocityY, vec3(1, 0, 0)));
     };
 
     //canvases[i].addEventListener("mousemove", f1);
