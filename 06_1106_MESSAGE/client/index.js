@@ -13,24 +13,76 @@ let input_name;
 // Text input field with message contant
 let input_message;
 
+// Text input for partner
+let input_partner;
+
+// Scroll div variable
+let div_scroll;
+
+/*
+
+Send button clicked:
+    - client -> server: {user: "...", to: "...", text: "..."}
+    - on server: 
+                push message to the tablet[msg.from].messages[msg.to].push(msg);
+                push message to the tablet[msg.to].messages[msg.from].push(msg);
+
+Update on each second:
+    - client -> server: {get: true, user: "...", to: "..."}
+    - on server:
+                send to socket:
+                            ws.send(tablet[msg.from].messages);           
+*/
+
+let old_length = 0;
+
 // Message from server handle function
 function onMessage(event) {
     console.log("on message");
 
     let messages = JSON.parse(event.data);
 
-    paragraph.textContent = "";
+    //paragraph.textContent = "";
     //const space =  `           `; 
+    div_scroll.innerHTML = "";
+    const par = `<div class="a"><p>`;
+    const par_self = `<div class="self"><p class="par_self">`;
+
+
     for (let msg of messages) {
+        //div_scroll.innerHTML += "<p><b>[" + msg.user + "]</b>";
+        //div_scroll.innerHTML += msg.text + "</p>";
+        if (msg.user == input_name.value)
+            div_scroll.innerHTML += par_self + "<b>" + msg.user + "</b><br />  " + msg.text + "</p></div>";
+        else
+            div_scroll.innerHTML += par + "<b>" + msg.user + "</b><br />  " + msg.text + "</p></div>";
+
+
+        /*
         paragraph.innerHTML += "<b>[" + msg.user + "]</b>   ";
         paragraph.innerHTML += "&nbsp&nbsp" + msg.text;
         paragraph.innerHTML += "<br />"
+        */
     }
+
+    // let x = true;
+    // for (let l in messages) {
+    //     if (old_messages[l] != messages[l])
+    //         x = false;
+    // }
+    if (old_length != messages.length) {
+        div_scroll.scrollTop = div_scroll.scrollHeight;
+    }
+    old_length = messages.length;
+
 };
 
 // Function to initialize websocket
 function initializeCommunication() {
-    socket.onopen = (e) => console.log("socket open on client");
+    socket.onopen = (e) => {
+        console.log("socket open on client");
+        //socket.send(JSON.stringify({ client_start: true }));
+    }
     socket.onmessage = (e) => onMessage(e);
 }
 
@@ -40,17 +92,46 @@ window.addEventListener(
 
         input_name = document.getElementById(`username`);
         input_message = document.getElementById(`message`);
+        input_partner = document.getElementById(`partner`);
         paragraph = document.getElementById(`paragraph`);
+        div_scroll = document.getElementById(`scroll`);
 
         let button_send = document.getElementById(`send`);
 
         button_send.addEventListener("click", () => {
             if (socket.bufferedAmount == 0) {
-                socket.send(JSON.stringify({ user: input_name.value, text: input_message.value }));
+                if (input_partner.value == "Global") {
+                    socket.send(JSON.stringify({ send_global: true, partner: input_partner.value, user: input_name.value, text: input_message.value }));
+                } else {
+                    socket.send(JSON.stringify({ partner: input_partner.value, user: input_name.value, text: input_message.value }));
+                }
             }
         });
+        input_message.addEventListener("keydown", (e) => {
+            if (socket.bufferedAmount == 0 && e.key == "Enter") {
+                if (input_partner.value == "Global") {
+                    socket.send(JSON.stringify({ send_global: true, partner: input_partner.value, user: input_name.value, text: input_message.value }));
+                    input_message.value = "";
+                } else {
+                    socket.send(JSON.stringify({ partner: input_partner.value, user: input_name.value, text: input_message.value }));
+                    input_message.value = "";
+                }
+            }
+        });
+        /*
+        input_name.onblur = () => {
+            socket.send(JSON.stringify({ client_start: true }));
+        }
+        */
+
+        setInterval(() => {
+            if (input_partner.value == "Global") {
+                socket.send(JSON.stringify({ get_global: true, user: input_name.value, partner: input_partner.value }));
+            } else {
+                socket.send(JSON.stringify({ get: true, user: input_name.value, partner: input_partner.value }));
+            }
+        }, 200);
 
         initializeCommunication();
-        socket.send(JSON.stringify({client_start: true}));
     }
 );

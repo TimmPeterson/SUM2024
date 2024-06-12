@@ -6,6 +6,11 @@ import express from "express"
 // Array with current pool of messages
 let messages = [];
 
+// Array with all users
+let users = {
+    "user": { "partner": [] }
+};
+
 // Array with current pool of sockets (clients)
 // To send some messages to all of them
 let sockets = [];
@@ -20,7 +25,7 @@ app.get("/", (req, res, next) => {
     counter = counter + 1;
     console.log(counter);
     next();
-    });
+});
 
 app.use(express.static("client"));
 
@@ -39,9 +44,34 @@ wss.on("connection", (ws) => {
         // And then we can get an object from it using JSON.parse(msg) .
         // We should always send a string.
         // So we use JSON.stringify(msg) to convert object o string 
-
         let msg = JSON.parse(message.toString())
 
+        if (msg.get_global != undefined) {
+            ws.send(JSON.stringify(messages));
+        } else if (msg.send_global != undefined) {
+            messages.push(msg);
+            ws.send(JSON.stringify(messages));
+        } else {
+            if (msg.get != undefined) {
+                if (users[msg.user] == undefined || users[msg.user][msg.partner] == undefined)
+                    ws.send(JSON.stringify([]));
+                else
+                    ws.send(JSON.stringify(users[msg.user][msg.partner]));
+            } else {
+                if (users[msg.user] == undefined)
+                    users[msg.user] = {};
+                if (users[msg.partner] == undefined)
+                    users[msg.partner] = {};
+                if (users[msg.user][msg.partner] == undefined)
+                    users[msg.user][msg.partner] = [];
+                if (users[msg.partner][msg.user] == undefined)
+                    users[msg.partner][msg.user] = [];
+                users[msg.user][msg.partner].push(msg);
+                users[msg.partner][msg.user].push(msg);
+                ws.send(JSON.stringify(users[msg.user][msg.partner]));
+            }
+        }
+        /*
         if (msg.client_start != undefined) {
             ws.send(JSON.stringify(messages));
         } else {
@@ -49,6 +79,7 @@ wss.on("connection", (ws) => {
             for (let sck of sockets)
                 sck.send(JSON.stringify(messages));
         }
+        */
     });
 
     // Removing socket from pool of sockets with callback on closing event 
@@ -60,7 +91,6 @@ wss.on("connection", (ws) => {
     sockets.push(ws);
 });
 
-
 // Some stuff for debug
 const host = "localhost";
 const port = 8000;
@@ -68,5 +98,5 @@ server.listen(port, host, () => {
     console.log(`server started on http://${host}:${port}`);
 });
 
-const main = () => {}
+const main = () => { }
 main();
