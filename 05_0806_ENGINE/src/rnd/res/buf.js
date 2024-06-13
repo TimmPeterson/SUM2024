@@ -29,7 +29,6 @@ export class UniformBuffer extends _buffer {
     apply(shd) {
         if (this.rnd == undefined || shd.prg == undefined || shd.uniformBlocks[this.name] == undefined)
             return;
-        shd.rnd.gl.bindBufferRange(this.type, shd.uniformBlocks[this.name].index, this.id, 0, this.size);
         shd.rnd.gl.uniformBlockBinding(shd.prg, shd.uniformBlocks[this.name].index, this.bindPoint);
         shd.rnd.gl.bindBufferBase(shd.rnd.gl.UNIFORM_BUFFER, this.bindPoint, this.id);
     }

@@ -28,9 +28,8 @@ export class Render {
     }
 
     renderStart() {
-        this.timer.response();
-        this.timeUBO.update(new Float32Array([this.timer.localTime, this.timer.localDeltaTime, this.timer.globalTime, this.timer.globalDeltaTime]));
-
+        //this.timer.response();
+        //this.timeUBO.update(new Float32Array([this.timer.localTime, this.timer.localDeltaTime, this.timer.globalTime, this.timer.globalDeltaTime]));
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
         this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
     }

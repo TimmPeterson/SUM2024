@@ -19,6 +19,9 @@ let input_partner;
 // Scroll div variable
 let div_scroll;
 
+// 
+let input_file;
+
 /*
 
 Send button clicked:
@@ -48,7 +51,6 @@ function onMessage(event) {
     const par = `<div class="a"><p>`;
     const par_self = `<div class="self"><p class="par_self">`;
 
-
     for (let msg of messages) {
         //div_scroll.innerHTML += "<p><b>[" + msg.user + "]</b>";
         //div_scroll.innerHTML += msg.text + "</p>";
@@ -56,7 +58,6 @@ function onMessage(event) {
             div_scroll.innerHTML += par_self + "<b>" + msg.user + "</b><br />  " + msg.text + "</p></div>";
         else
             div_scroll.innerHTML += par + "<b>" + msg.user + "</b><br />  " + msg.text + "</p></div>";
-
 
         /*
         paragraph.innerHTML += "<b>[" + msg.user + "]</b>   ";
@@ -95,9 +96,11 @@ window.addEventListener(
         input_partner = document.getElementById(`partner`);
         paragraph = document.getElementById(`paragraph`);
         div_scroll = document.getElementById(`scroll`);
+        input_file = document.getElementById(`file`);
 
         let button_send = document.getElementById(`send`);
 
+        /*
         button_send.addEventListener("click", () => {
             if (socket.bufferedAmount == 0) {
                 if (input_partner.value == "Global") {
@@ -107,16 +110,35 @@ window.addEventListener(
                 }
             }
         });
+*/
+        /*
+<button id="send" form="" width="100%" class="glow-on-hover" type="button">Send message</button><br />
+        */
+        let cur_img = null;
         input_message.addEventListener("keydown", (e) => {
             if (socket.bufferedAmount == 0 && e.key == "Enter") {
                 if (input_partner.value == "Global") {
-                    socket.send(JSON.stringify({ send_global: true, partner: input_partner.value, user: input_name.value, text: input_message.value }));
-                    input_message.value = "";
+                    if (cur_img != null) {
+                        let img = `<image class="img" src="${URL.createObjectURL(input_file.files[0])}"></image><br />`;
+                        socket.send(JSON.stringify({ send_global: true, partner: input_partner.value, user: input_name.value, text: img + input_message.value }));
+                        input_message.value = "";
+                        cur_img = null;
+                    } else {
+                        socket.send(JSON.stringify({ send_global: true, partner: input_partner.value, user: input_name.value, text: input_message.value }));
+                        input_message.value = "";
+                    }
+
                 } else {
                     socket.send(JSON.stringify({ partner: input_partner.value, user: input_name.value, text: input_message.value }));
                     input_message.value = "";
                 }
             }
+        });
+        /*
+        
+        */
+        input_file.addEventListener("change", e => {
+            cur_img = 1;
         });
         /*
         input_name.onblur = () => {

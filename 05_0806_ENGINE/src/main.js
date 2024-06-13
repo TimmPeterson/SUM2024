@@ -79,10 +79,10 @@ function main() {
   let timer = new Timer();
 
   // Test material and primitive 
-  let mtl = new Material(shaders[3], ...mtl_props[0]);
-  let f = new Figure();
-  f.setDodecahedron();
-  let test_pr = f.makePrim(mtl);
+  //let mtl = new Material(shaders[3], ...mtl_props[0]);
+  //let f = new Figure();
+  //f.setDodecahedron();
+  //let test_pr = f.makePrim(mtl);
 
   //////////////////////////////
   // Mouse event handlers setting
@@ -123,7 +123,7 @@ function main() {
   const draw = () => {
 
     // Timer reponse
-    timer.response();
+    //timer.response();
 
     let t = timer.getTime();
 
@@ -132,8 +132,8 @@ function main() {
       for (let i = 0; i < 6; i++) {
         // 
         renders[i].renderStart();
-        if (i == 3) // Test primitive render
-          test_pr.render(scales[i].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[i].mul(matrTranslate(vec3(2, 2, -10))))));
+        //if (i == 3) // Test primitive render
+        //  test_pr.render(scales[i].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[i].mul(matrTranslate(vec3(2, 2, -10))))));
 
         // Rendering [i] primitive
         prims[i].render(scales[i].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[i].mul(matrTranslate(vec3(0, 0, -10))))));

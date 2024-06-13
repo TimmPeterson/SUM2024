@@ -26,20 +26,6 @@ h2 small {
     display: block;
 }
 
-.footer {
-    text-align: center;
-}
-
-.footer a {
-    color: #53B2C8;
-}
-
-/* form starting stylings ------------------------------- */
-.group {
-    position: relative;
-    margin-bottom: 45px;
-}
-
 #username,
 #partner {
     border-radius: 50px;
@@ -71,38 +57,4 @@ input:focus~.highlight {
     -webkit-animation: inputHighlighter 0.3s ease;
     -moz-animation: inputHighlighter 0.3s ease;
     animation: inputHighlighter 0.3s ease;
-}
-
-/* ANIMATIONS ================ */
-@-webkit-keyframes inputHighlighter {
-    from {
-        background: #5264AE;
-    }
-
-    to {
-        width: 0;
-        background: transparent;
-    }
-}
-
-@-moz-keyframes inputHighlighter {
-    from {
-        background: #5264AE;
-    }
-
-    to {
-        width: 0;
-        background: transparent;
-    }
-}
-
-@keyframes inputHighlighter {
-    from {
-        background: #5264AE;
-    }
-
-    to {
-        width: 0;
-        background: transparent;
-    }
 }
