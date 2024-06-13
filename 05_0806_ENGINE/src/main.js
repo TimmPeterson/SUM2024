@@ -6,12 +6,16 @@ import { Figure } from "./plat/plat.js"
 import { Shader } from "./rnd/res/shd.js"
 import { Timer } from "./timer/timer.js"
 import { UniformBuffer } from "./rnd/res/buf.js"
+import { Material } from "./rnd/res/mtl.js"
 
-console.log("MAIN LOADED");
-
-let rnd1;
+function tpLog(text) {
+  window.par.innerHTML += text + "<br />";
+}
 
 function main() {
+  window.par = document.getElementById("p");
+  console.log("MAIN LOADED");
+  //tpLog("MAIN LOADED");
 
   let canvases = [];
   let renders = [];
@@ -20,6 +24,7 @@ function main() {
   let UBOs = [];
   let figures = [];
   let rots = [];
+  let mtls = [];
   let scales =
     [
       matrScale(vec3(3)), matrScale(vec3(2.8)),
@@ -29,7 +34,6 @@ function main() {
 
   for (let i = 0; i < 6; i++)
     figures[i] = new Figure();
-
   figures[0].setTetrahedron();
   figures[1].setOctahedron();
   figures[2].setCube();
@@ -37,22 +41,52 @@ function main() {
   figures[4].setDodecahedron();
   figures[5].setStar();
 
-  let a = [1, 1, 1, 1, 1, 1, 1, 1, 1];
+  let mtl_props = [
+    [vec3(0.1), vec3(0, 0.7, 0.7), vec3(0.5, 0.5, 0.5), 90],
+    [vec3(0.1), vec3(0, 0, 0.7), vec3(0.5, 0.5, 0.0), 40],
+    [vec3(0.1), vec3(0.2, 0.5, 0.5), vec3(0.5, 0.5, 0.5), 40],
+    [vec3(0.1), vec3(0.7, 0.7, 0.7), vec3(0.5, 0.5, 0.5), 90],
+    [vec3(0.1), vec3(0.2, 0.2, 0.2), vec3(0.1, 0.1, 0.1), 15],
+    [vec3(0.1), vec3(0.7, 0.7, 0), vec3(0.9, 0.9, 0.9), 90],
+  ];
 
-  for (let i = 0; i < 6; i++) {
-    canvases[i] = document.getElementById(`myCan${i + 1}`);
-    renders[i] = new Render(canvases[i]);
-    shaders[i] = new Shader(renders[i], "default");
-    prims[i] = figures[i].makePrim(shaders[i]);
-    UBOs[i] = new UniformBuffer(renders[i], "u_testBlock", 64, i + 1);
-    UBOs[i].update(new Float32Array(a));
-    canvases[i].hm = Hammer(canvases[i]);
-    canvases[i].hm.get("rotate").set({ enable: true });
+  try {
+    for (let i = 0; i < 6; i++) {
+      // Getting canvas from html
+      canvases[i] = document.getElementById(`myCan${i + 1}`);
+
+      // Initializing render object 
+      renders[i] = new Render(canvases[i]);
+
+      // Initializing shader for render object
+      shaders[i] = new Shader(renders[i], "default");
+
+      // Initializing material relaterd to shader
+      mtls[i] = new Material(shaders[i], ...mtl_props[i]);
+
+      // Creating primitive using material
+      prims[i] = figures[i].makePrim(mtls[i]);
+
+      // Initializing Hammer on canvas
+      canvases[i].hm = Hammer(canvases[i]);
+      canvases[i].hm.get("rotate").set({ enable: true });
+    }
+  } catch (err) {
+    tpLog(`${err.name} : ${err.message}`);
   }
 
   // Timer creation
   let timer = new Timer();
 
+  // Test material and primitive 
+  let mtl = new Material(shaders[3], ...mtl_props[0]);
+  let f = new Figure();
+  f.setDodecahedron();
+  let test_pr = f.makePrim(mtl);
+
+  //////////////////////////////
+  // Mouse event handlers setting
+  //////////////////////////////
   let rotSpeed = 0.01;
   for (let i = 0; i < 6; i++) {
     rots[i] = mat4(1);
@@ -88,16 +122,24 @@ function main() {
   // Each frame rendering function declaration
   const draw = () => {
 
-    // timer reponse
+    // Timer reponse
     timer.response();
 
     let t = timer.getTime();
 
-    // frame render
-    for (let i = 0; i < 6; i++) {
-      renders[i].renderStart();
-      prims[i].render(scales[i].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[i].mul(matrTranslate(vec3(0, 0, -10))))));
-      UBOs[i].apply(shaders[i]);
+    // Frame render
+    try {
+      for (let i = 0; i < 6; i++) {
+        // 
+        renders[i].renderStart();
+        if (i == 3) // Test primitive render
+          test_pr.render(scales[i].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[i].mul(matrTranslate(vec3(2, 2, -10))))));
+
+        // Rendering [i] primitive
+        prims[i].render(scales[i].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[i].mul(matrTranslate(vec3(0, 0, -10))))));
+      }
+    } catch (err) {
+      tpLog(`${err.name} : ${err.message}`);
     }
 
     window.requestAnimationFrame(draw);

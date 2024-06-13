@@ -77,6 +77,10 @@ class _vec3 {
             this.x * m.a[0][2] + this.y * m.a[1][2] + this.z * m.a[2][2] + m.a[3][2]
         );
     }
+
+    linearize() {
+        return [this.x, this.y, this.z];
+    }
 }
 
 export function vec3(x, y, z) {

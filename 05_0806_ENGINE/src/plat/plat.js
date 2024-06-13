@@ -189,14 +189,14 @@ export class Figure {
             p = p.div(5);
             p = p.mul(3);
 
-            let tris = 
-            [
-                [this.vertexes[i][0], this.vertexes[i][1], p], 
-                [this.vertexes[i][1], this.vertexes[i][2], p], 
-                [this.vertexes[i][2], this.vertexes[i][3], p], 
-                [this.vertexes[i][3], this.vertexes[i][4], p], 
-                [this.vertexes[i][4], this.vertexes[i][0], p], 
-            ];
+            let tris =
+                [
+                    [this.vertexes[i][0], this.vertexes[i][1], p],
+                    [this.vertexes[i][1], this.vertexes[i][2], p],
+                    [this.vertexes[i][2], this.vertexes[i][3], p],
+                    [this.vertexes[i][3], this.vertexes[i][4], p],
+                    [this.vertexes[i][4], this.vertexes[i][0], p],
+                ];
             for (let i = 0; i < 5; i++)
                 verts.push(tris[i]);
         }
@@ -204,7 +204,7 @@ export class Figure {
         this.vertexes = verts;
     }
 
-    makePrim(rnd) {
+    makePrim(mtl) {
         let indicies = [];
         let vertexes = [];
         let j = 0;
@@ -222,6 +222,6 @@ export class Figure {
             j += edge.length;
         }
 
-        return new Prim(rnd, vertexes, indicies);
+        return new Prim(mtl, vertexes, indicies);
     }
 }

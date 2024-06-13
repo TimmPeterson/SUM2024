@@ -3,8 +3,9 @@ import { mat4, matrFrustum, matrView } from "../mth/mat4.js"
 import { UniformBuffer } from "./res/buf.js"
 import { Timer } from "../timer/timer.js"
 
+// General class for rendering.
+// One render per canvas.
 export class Render {
-
     setFrustum() {
         let m = mat4(1);
         let rx = this.projSize, ry = this.projSize;
@@ -32,30 +33,36 @@ export class Render {
 
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
         this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
-    } // End of 'render' function
+    }
 
     constructor(canvas) {
         this.canvas = canvas;
 
+        // Default camera properties
         this.projSize = 0.1;
         this.projDist = 0.1;
         this.farClip = 300;
 
+        // Evaluating canvas size
         let rect = canvas.getBoundingClientRect();
         this.width = rect.right - rect.left + 1;
         this.height = rect.bottom - rect.top + 1;
 
+        // Getting GL context
         this.gl = canvas.getContext("webgl2");
         this.gl.clearColor(0.9, 0.9, 0.9, 1);
         this.gl.enable(this.gl.DEPTH_TEST);
 
+        // Initializing camera
         this.setFrustum();
         this.setCam(vec3(0, 0, 0), vec3(0, 0, -1), vec3(0, 1, 0));
         this.matrixUBO = new UniformBuffer(this, "u_camera", 16 * 4 * 2, 0);
         this.updateMatrixes();
 
+        // Initializing prim ubo
         this.primUBO = new UniformBuffer(this, "u_primitive", 16 * 4, 1);
 
+        // Initializing timer
         this.timer = new Timer();
         this.timeUBO = new UniformBuffer(this, "u_time", 16, 2);
     }

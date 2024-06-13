@@ -85,8 +85,9 @@ export class Prim {
         this.numOfElements = indicies.length;
     }
 
-    constructor(shd, vertexes, indicies) {
-        this.create(shd, vertexes, indicies);
+    constructor(mtl, vertexes, indicies) {
+        this.mtl = mtl;
+        this.create(mtl.shd, vertexes, indicies);
     }
 
     render(world) {
@@ -99,7 +100,7 @@ export class Prim {
         }
 
         // Drawing primitive if shader is loaded
-        if (this.shd.apply()) {
+        if (this.mtl.apply()) {
             this.shd.rnd.primUBO.update(new Float32Array(world.linearize()));
             this.shd.rnd.gl.bindVertexArray(this.vertexArrayId);
             this.shd.rnd.gl.bindBuffer(this.shd.rnd.gl.ELEMENT_ARRAY_BUFFER, this.IndexBufferId);
