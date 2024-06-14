@@ -63,6 +63,7 @@ export class Shader {
     updateShaderData() {
         this.posLoc = this.rnd.gl.getAttribLocation(this.prg, "InPosition");
         this.normLoc = this.rnd.gl.getAttribLocation(this.prg, "InNormal");
+        this.texLoc = this.rnd.gl.getAttribLocation(this.prg, "InTexCoord");
 
         // Shader uniforms
         this.uniforms = {};

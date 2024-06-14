@@ -7,6 +7,7 @@ import { Shader } from "./rnd/res/shd.js"
 import { Timer } from "./timer/timer.js"
 import { UniformBuffer } from "./rnd/res/buf.js"
 import { Material } from "./rnd/res/mtl.js"
+import { Texture } from "./rnd/res/tex.js"
 
 function tpLog(text) {
   window.par.innerHTML += text + "<br />";
@@ -27,9 +28,9 @@ function main() {
   let mtls = [];
   let scales =
     [
-      matrScale(vec3(3)), matrScale(vec3(2.8)),
-      matrScale(vec3(2.7)), matrScale(vec3(2.2)),
-      matrScale(vec3(1.8)), matrScale(vec3(1))
+      matrScale(vec3(5.8)), matrScale(vec3(4.7)),
+      matrScale(vec3(4)), matrScale(vec3(3.2)),
+      matrScale(vec3(2.1)), matrScale(vec3(1.2)), matrScale(vec3(0.3)), matrScale(vec3(4))
     ];
 
   for (let i = 0; i < 6; i++)
@@ -43,52 +44,69 @@ function main() {
 
   let mtl_props = [
     [vec3(0.1), vec3(0, 0.7, 0.7), vec3(0.5, 0.5, 0.5), 90],
-    [vec3(0.1), vec3(0, 0, 0.7), vec3(0.5, 0.5, 0.0), 40],
-    [vec3(0.1), vec3(0.2, 0.5, 0.5), vec3(0.5, 0.5, 0.5), 40],
+    [vec3(0.1), vec3(0.3, 0.35, 0.7), vec3(0.5, 0.5, 0.0), 40],
+    [vec3(0.1), vec3(0.4, 0.6, 0.4), vec3(1, 1, 1), 90],
     [vec3(0.1), vec3(0.7, 0.7, 0.7), vec3(0.5, 0.5, 0.5), 90],
-    [vec3(0.1), vec3(0.2, 0.2, 0.2), vec3(0.1, 0.1, 0.1), 15],
+    [vec3(0.1), vec3(0.6, 0.2, 0.5), vec3(0.3, 0.3, 0.3), 40],
     [vec3(0.1), vec3(0.7, 0.7, 0), vec3(0.9, 0.9, 0.9), 90],
   ];
 
-  try {
-    for (let i = 0; i < 6; i++) {
-      // Getting canvas from html
-      canvases[i] = document.getElementById(`myCan${i + 1}`);
+  canvases[6] = document.getElementById(`myCan7`);
+  canvases[6].hm = Hammer(canvases[6]);
+  canvases[6].hm.get("rotate").set({ enable: true });
+  canvases[7] = document.getElementById(`myCan8`);
+  canvases[7].hm = Hammer(canvases[7]);
+  canvases[7].hm.get("rotate").set({ enable: true });
 
-      // Initializing render object 
-      renders[i] = new Render(canvases[i]);
+  for (let i = 0; i < 6; i++) {
+    // Getting canvas from html
+    canvases[i] = document.getElementById(`myCan${i + 1}`);
 
-      // Initializing shader for render object
-      shaders[i] = new Shader(renders[i], "default");
+    // Initializing render object 
+    renders[i] = new Render(canvases[i]);
 
-      // Initializing material relaterd to shader
-      mtls[i] = new Material(shaders[i], ...mtl_props[i]);
+    // Initializing shader for render object
+    shaders[i] = new Shader(renders[i], "default");
 
-      // Creating primitive using material
-      prims[i] = figures[i].makePrim(mtls[i]);
+    // Initializing material relaterd to shader
+    mtls[i] = new Material(shaders[i], ...mtl_props[i]);
 
-      // Initializing Hammer on canvas
-      canvases[i].hm = Hammer(canvases[i]);
-      canvases[i].hm.get("rotate").set({ enable: true });
-    }
-  } catch (err) {
-    tpLog(`${err.name} : ${err.message}`);
+    // Creating primitive using material
+    prims[i] = figures[i].makePrim(mtls[i]);
+
+    // Initializing Hammer on canvas
+    canvases[i].hm = Hammer(canvases[i]);
+    canvases[i].hm.get("rotate").set({ enable: true });
   }
+  prims[0].transform = matrTranslate(vec3(0, -0.3, 0));
 
   // Timer creation
   let timer = new Timer();
-
   // Test material and primitive 
-  //let mtl = new Material(shaders[3], ...mtl_props[0]);
-  //let f = new Figure();
-  //f.setDodecahedron();
-  //let test_pr = f.makePrim(mtl);
+  let render_model = new Render(canvases[6]);
+  let shader_model = new Shader(render_model, "default");
+  let mtl = new Material(shader_model, ...mtl_props[0]);
+  let test_pr = new Prim(mtl, "cow");
+  test_pr.transform = matrTranslate(vec3(0, -4.5, 0));
+
+  let render_texture = new Render(canvases[7]);
+  let shader_texture = new Shader(render_texture, "default");
+  let mtl_texture = new Material(shader_texture, ...mtl_props[0]);
+  //let tex = new Texture(render_texture, "bin/textures/PNG.PNG");
+  let tex = new Texture(render_texture, "./bin/textures/em.jpg");
+  mtl_texture.attachTexture(tex, 0);
+  mtl_texture.update();
+  let f = new Figure();
+  f.setCube();
+  let prim_tex = f.makePrim(mtl_texture);
+
+  //test_pr.transform = matrTranslate(vec3(0, -5.0, 0));
 
   //////////////////////////////
   // Mouse event handlers setting
   //////////////////////////////
   let rotSpeed = 0.01;
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 8; i++) {
     rots[i] = mat4(1);
 
     let f1 = e => {
@@ -104,13 +122,11 @@ function main() {
 
     let d, old = 0;
     let f3 = e => {
-      d = e.angle - old;
-      old = e.angle;
-      rots[i] = rots[i].mul(matrRotate(d, vec3(0, 0, 1)));
+      rots[i] = rots[i].mul(matrRotate(0.00001 * e.angle, vec3(0, 0, 1)));
     };
     let f4 = e => {
-      rots[i] = rots[i].mul(matrRotate(0.1 * e.velocityX, vec3(0, 1, 0)));
-      rots[i] = rots[i].mul(matrRotate(0.1 * e.velocityY, vec3(1, 0, 0)));
+      rots[i] = rots[i].mul(matrRotate(0.22 * e.velocityX, vec3(0, 1, 0)));
+      rots[i] = rots[i].mul(matrRotate(0.22 * e.velocityY, vec3(1, 0, 0)));
     };
 
     //canvases[i].addEventListener("mousemove", f1);
@@ -128,19 +144,18 @@ function main() {
     let t = timer.getTime();
 
     // Frame render
-    try {
-      for (let i = 0; i < 6; i++) {
-        // 
-        renders[i].renderStart();
-        //if (i == 3) // Test primitive render
-        //  test_pr.render(scales[i].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[i].mul(matrTranslate(vec3(2, 2, -10))))));
+    for (let i = 0; i < 6; i++) {
+      //  Starting posting cringe 
+      renders[i].renderStart();
 
-        // Rendering [i] primitive
-        prims[i].render(scales[i].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[i].mul(matrTranslate(vec3(0, 0, -10))))));
-      }
-    } catch (err) {
-      tpLog(`${err.name} : ${err.message}`);
+      // Rendering [i] primitive
+      prims[i].render(scales[i].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[i].mul(matrTranslate(vec3(0, 0, -10))))));
     }
+
+    render_model.renderStart();
+    test_pr.render(scales[6].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[6].mul(matrTranslate(vec3(0, 0, -10))))));
+    render_texture.renderStart();
+    prim_tex.render(scales[7].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[7].mul(matrTranslate(vec3(0, 0, -10))))));
 
     window.requestAnimationFrame(draw);
   };

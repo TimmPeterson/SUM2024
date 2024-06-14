@@ -1,5 +1,6 @@
 import { Prim, vertex } from "../rnd/res/prim.js";
 import { vec3 } from "../mth/vec3.js";
+import { vec2 } from "../mth/vec2.js";
 
 export class Figure {
     constructor() {
@@ -14,7 +15,15 @@ export class Figure {
             [vec3(0.5, -0.5, -0.5), vec3(0.5, -0.5, 0.5), vec3(0.5, 0.5, 0.5), vec3(0.5, 0.5, -0.5)],      // right
             [vec3(-0.5, -0.5, -0.5), vec3(-0.5, -0.5, 0.5), vec3(0.5, -0.5, 0.5), vec3(0.5, -0.5, -0.5)],  // bottom
             [vec3(-0.5, 0.5, -0.5), vec3(-0.5, 0.5, 0.5), vec3(0.5, 0.5, 0.5), vec3(0.5, 0.5, -0.5)],      // top
-        ]
+        ];
+        this.texCoords = [
+            [vec2(0, 0), vec2(0, 1), vec2(1, 1), vec2(1, 0)],
+            [vec2(0, 0), vec2(0, 1), vec2(1, 1), vec2(1, 0)],
+            [vec2(0, 0), vec2(0, 1), vec2(1, 1), vec2(1, 0)],
+            [vec2(0, 0), vec2(0, 1), vec2(1, 1), vec2(1, 0)],
+            [vec2(0, 0), vec2(0, 1), vec2(1, 1), vec2(1, 0)],
+            [vec2(0, 0), vec2(0, 1), vec2(1, 1), vec2(1, 0)],
+        ];
     }
 
     setTetrahedron() {
@@ -209,9 +218,17 @@ export class Figure {
         let vertexes = [];
         let j = 0;
 
-        for (let edge of this.vertexes) {
-            for (let v of edge) {
-                vertexes.push(vertex(v, vec3(0)));
+        for (let e = 0; e < this.vertexes.length; e++) {
+            let edge = this.vertexes[e];
+
+            if (this.texCoords != undefined) {
+                for (let v in edge) {
+                    vertexes.push(vertex(edge[v], vec3(0), this.texCoords[e][v]));
+                }
+            } else {
+                for (let v in edge) {
+                    vertexes.push(vertex(edge[v], vec3(0)));
+                }
             }
 
             for (let i = 2; i < edge.length; i++) {
