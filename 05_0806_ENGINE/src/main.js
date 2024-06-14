@@ -8,6 +8,7 @@ import { Timer } from "./timer/timer.js"
 import { UniformBuffer } from "./rnd/res/buf.js"
 import { Material } from "./rnd/res/mtl.js"
 import { Texture } from "./rnd/res/tex.js"
+import { onPinch } from "./input/tch.js"
 
 function tpLog(text) {
   window.par.innerHTML += text + "<br />";
@@ -101,13 +102,16 @@ function main() {
   let prim_tex = f.makePrim(mtl_texture);
 
   //test_pr.transform = matrTranslate(vec3(0, -5.0, 0));
-
+  //canvases[6].style.width = "50%";
   //////////////////////////////
   // Mouse event handlers setting
   //////////////////////////////
   let rotSpeed = 0.01;
+  let ss = [1, 1, 1, 1, 1, 1, 1, 1];
+  let scales1 = [];
   for (let i = 0; i < 8; i++) {
     rots[i] = mat4(1);
+    scales1[i] = mat4(1);
 
     let f1 = e => {
       rots[i] = rots[i].mul(matrRotate(rotSpeed * e.movementX, vec3(0, 1, 0)));
@@ -119,20 +123,49 @@ function main() {
       else
         scales[i] = scales[i].mul(matrScale(vec3(1.1)));
     };
-
-    let d, old = 0;
-    let f3 = e => {
-      rots[i] = rots[i].mul(matrRotate(0.00001 * e.angle, vec3(0, 0, 1)));
+    let f3 = (dist, delta) => {
+      d = delta / 20.0;
+      if (ss[i] + d > 0)
+        ss[i] += d;
+      scales1[i] = matrScale(vec3(ss[i]));
     };
     let f4 = e => {
       rots[i] = rots[i].mul(matrRotate(0.22 * e.velocityX, vec3(0, 1, 0)));
       rots[i] = rots[i].mul(matrRotate(0.22 * e.velocityY, vec3(1, 0, 0)));
+    };
+    let onTap = e => {
+      if (canvases[i].style.width == "35%") {
+        canvases[i].style.width = "20%";
+        canvases[i].style.position = "static";
+        canvases[i].style.top = "auto";
+        canvases[i].style.left = "auto";
+        return;
+      }
+
+      canvases[i].style.width = "35%";
+      canvases[i].style.position = "fixed";
+      canvases[i].style.top = "0";
+      canvases[i].style.left = "0";
+      canvases[i].style.position = "absolute";
+      canvases[i].style.top = "5%";
+      canvases[i].style.left = "32%";
+
+      for (let c = 0; c < canvases.length; c++) {
+        if (c != i) {
+          canvases[c].style.width = "20%";
+          canvases[c].style.position = "static";
+          canvases[c].style.top = "auto";
+          canvases[c].style.left = "auto";  
+        }
+      }
     };
 
     //canvases[i].addEventListener("mousemove", f1);
     canvases[i].addEventListener("wheel", f2);
     canvases[i].hm.on("rotate", f3);
     canvases[i].hm.on("pan", f4);
+    canvases[i].hm.on("tap", onTap);
+    onPinch(canvases[i], () => {}, f3, () => {});
   }
 
   // Each frame rendering function declaration
@@ -149,13 +182,13 @@ function main() {
       renders[i].renderStart();
 
       // Rendering [i] primitive
-      prims[i].render(scales[i].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[i].mul(matrTranslate(vec3(0, 0, -10))))));
+      prims[i].render(scales1[i].mul(scales[i].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[i].mul(matrTranslate(vec3(0, 0, -10)))))));
     }
 
     render_model.renderStart();
-    test_pr.render(scales[6].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[6].mul(matrTranslate(vec3(0, 0, -10))))));
+    test_pr.render(scales1[6].mul(scales[6].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[6].mul(matrTranslate(vec3(0, 0, -10)))))));
     render_texture.renderStart();
-    prim_tex.render(scales[7].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[7].mul(matrTranslate(vec3(0, 0, -10))))));
+    prim_tex.render(scales1[7].mul(scales[7].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[7].mul(matrTranslate(vec3(0, 0, -10)))))));
 
     window.requestAnimationFrame(draw);
   };
