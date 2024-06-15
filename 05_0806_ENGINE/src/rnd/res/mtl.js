@@ -3,12 +3,13 @@ import { UniformBuffer } from "./buf.js"
 
 // Class for holding material properties of primitive.
 export class Material {
-    constructor(shd, Ka, Kd, Ks, Ph) {
+    constructor(shd, Ka, Kd, Ks, Ph, Trans) {
         this.shd = shd;
         this.Ka = Ka;
         this.Kd = Kd;
         this.Ks = Ks;
         this.Ph = Ph;
+        this.Trans = Trans;
         this.textures = [null, null, null, null];
 
         this.UBO = new UniformBuffer(this.shd.rnd, "u_material", 16 * 4, 3);
@@ -18,7 +19,7 @@ export class Material {
 
     update() {
         let tex_flags = [0, 0, 0, 0];
-        let data = this.Ka.linearize().concat([0], this.Kd.linearize(), [0], this.Ks.linearize(), [this.Ph])
+        let data = this.Ka.linearize().concat([0], this.Kd.linearize(), [this.Trans], this.Ks.linearize(), [this.Ph])
 
         for (let t = 0; t < 4; t++)
             if (this.textures[t] != null)

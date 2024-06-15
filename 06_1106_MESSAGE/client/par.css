@@ -71,4 +71,17 @@ p {
     background-color: #fff;
 }
 
-.asd {}
+#asd {}
+
+h4 {
+    font-family: 'Calibri';
+    text-align: center;
+    font-size: xx-large;
+}
+
+label {
+    font-family: 'Calibri';
+    text-align: center;
+    font-size: xx-large;
+    font-style: normal;
+}

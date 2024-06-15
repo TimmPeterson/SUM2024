@@ -6,6 +6,8 @@ import { Timer } from "../timer/timer.js"
 // General class for rendering.
 // One render per canvas.
 export class Render {
+    transparents = [];
+
     setFrustum() {
         let m = mat4(1);
         let rx = this.projSize, ry = this.projSize;
@@ -34,6 +36,19 @@ export class Render {
         this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
     }
 
+    renderEnd() {
+        if (this.transparents.length != 0) {
+            this.gl.enable(this.gl.BLEND);
+            this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+
+            for (let p of this.transparents) {
+                p.prim.renderNow(p.world);
+            }
+            this.gl.disable(this.gl.BLEND);
+            this.transparents = [];
+        }
+    }
+
     constructor(canvas) {
         this.canvas = canvas;
 
@@ -48,7 +63,10 @@ export class Render {
         this.height = rect.bottom - rect.top + 1;
 
         // Getting GL context
-        this.gl = canvas.getContext("webgl2");
+        this.gl = canvas.getContext("webgl2", {
+            premultipliedAlpha: false,
+            alpha: false
+        });
         this.gl.clearColor(0.9, 0.9, 0.9, 1);
         this.gl.enable(this.gl.DEPTH_TEST);
 

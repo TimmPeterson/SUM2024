@@ -44,12 +44,12 @@ function main() {
   figures[5].setStar();
 
   let mtl_props = [
-    [vec3(0.1), vec3(0, 0.7, 0.7), vec3(0.5, 0.5, 0.5), 90],
-    [vec3(0.1), vec3(0.3, 0.35, 0.7), vec3(0.5, 0.5, 0.0), 40],
-    [vec3(0.1), vec3(0.4, 0.6, 0.4), vec3(1, 1, 1), 90],
-    [vec3(0.1), vec3(0.7, 0.7, 0.7), vec3(0.5, 0.5, 0.5), 90],
-    [vec3(0.1), vec3(0.6, 0.2, 0.5), vec3(0.3, 0.3, 0.3), 40],
-    [vec3(0.1), vec3(0.7, 0.7, 0), vec3(0.9, 0.9, 0.9), 90],
+    [vec3(0.1), vec3(0, 0.7, 0.7), vec3(0.5, 0.5, 0.5), 90, 1.0],
+    [vec3(0.1), vec3(0.3, 0.35, 0.7), vec3(0.5, 0.5, 0.0), 40, 1.0],
+    [vec3(0.1), vec3(0.4, 0.6, 0.4), vec3(1, 1, 1), 90, 0.4],
+    [vec3(0.1), vec3(0.7, 0.7, 0.7), vec3(0.5, 0.5, 0.5), 90, 1.0],
+    [vec3(0.1), vec3(0.6, 0.2, 0.5), vec3(0.3, 0.3, 0.3), 40, 1.0],
+    [vec3(0.1), vec3(0.7, 0.7, 0), vec3(0.9, 0.9, 0.9), 90, 1.0],
   ];
 
   canvases[6] = document.getElementById(`myCan7`);
@@ -100,6 +100,9 @@ function main() {
   let f = new Figure();
   f.setCube();
   let prim_tex = f.makePrim(mtl_texture);
+
+  let mt = new Material(shaders[2], vec3(0.1), vec3(1, 0, 0.4), vec3(0.5, 0.5, 0.0), 40, 1);
+  let cube = f.makePrim(mt);
 
   //test_pr.transform = matrTranslate(vec3(0, -5.0, 0));
   //canvases[6].style.width = "50%";
@@ -155,7 +158,7 @@ function main() {
           canvases[c].style.width = "20%";
           canvases[c].style.position = "static";
           canvases[c].style.top = "auto";
-          canvases[c].style.left = "auto";  
+          canvases[c].style.left = "auto";
         }
       }
     };
@@ -165,7 +168,7 @@ function main() {
     canvases[i].hm.on("rotate", f3);
     canvases[i].hm.on("pan", f4);
     canvases[i].hm.on("tap", onTap);
-    onPinch(canvases[i], () => {}, f3, () => {});
+    onPinch(canvases[i], () => { }, f3, () => { });
   }
 
   // Each frame rendering function declaration
@@ -181,14 +184,20 @@ function main() {
       //  Starting posting cringe 
       renders[i].renderStart();
 
+      if (i == 2)
+        cube.render(scales1[2].mul(matrScale(vec3(0.5)).mul(scales[2].mul(matrRotate(2 * t, vec3(0, 1, 0)).mul(rots[7].mul(matrTranslate(vec3(0, 0, -10))))))));
+
       // Rendering [i] primitive
       prims[i].render(scales1[i].mul(scales[i].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[i].mul(matrTranslate(vec3(0, 0, -10)))))));
+      renders[i].renderEnd();
     }
 
     render_model.renderStart();
     test_pr.render(scales1[6].mul(scales[6].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[6].mul(matrTranslate(vec3(0, 0, -10)))))));
+    render_model.renderEnd();
     render_texture.renderStart();
     prim_tex.render(scales1[7].mul(scales[7].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[7].mul(matrTranslate(vec3(0, 0, -10)))))));
+    render_texture.renderEnd();
 
     window.requestAnimationFrame(draw);
   };
