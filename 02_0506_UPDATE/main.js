@@ -42,6 +42,11 @@ function initGL() {
   uniform float B;
   uniform float dX;
   uniform float dY;
+  uniform float StartX;
+  uniform float StartY;
+  uniform float EndX;
+  uniform float EndY;
+
 
   vec2 CmplMulCmpl( vec2 A, vec2 B )
   {
@@ -50,19 +55,19 @@ function initGL() {
 
   vec2 f( vec2 Z ) 
   {
-    return CmplMulCmpl(CmplMulCmpl(Z, Z), Z);
+    return CmplMulCmpl(Z, Z);//CmplMulCmpl(CmplMulCmpl(Z, Z), Z);
   }
 
   void main( void )
   {
     int n = 0;  
     vec2 Z, Z0;
-    vec2 m = (vec2(1000.0 - Mx, My) / vec2(1000.0) - 0.5) * 2.0;
+    //vec2 m = (vec2(1000.0 - Mx, My) / vec2(1000.0) - 0.5) * 2.0;
 
-    Z = (gl_FragCoord.xy / vec2(1000.0) - 0.5) * 2.0;
-    Z = (Z - m) * Mz + m;
-    //Z = (10.0 - 10.0 / Mz) * (Z - m) + m;
-    Z0 = vec2(0.5, 0.32);
+    Z = (gl_FragCoord.xy / vec2(2000.0) - 0.5) * 2.0;
+    Z.x = (Z.x + 1.0) / 2.0 * (EndX - StartX) + StartX;
+    Z.y = (Z.y + 1.0) / 2.0 * (EndY - StartY) + StartY;
+    Z0 = Z;//vec2(0.5, 0.32);
 
     while (n < 255 && dot(Z, Z) < 4.0)
     {
@@ -123,6 +128,10 @@ function initGL() {
   bLoc = gl.getUniformLocation(prg, "B");
   dxLoc = gl.getUniformLocation(prg, "dX");
   dyLoc = gl.getUniformLocation(prg, "dY");
+  LocEx = gl.getUniformLocation(prg, "EndX");
+  LocSx = gl.getUniformLocation(prg, "StartX");
+  LocEy = gl.getUniformLocation(prg, "EndY");
+  LocSy = gl.getUniformLocation(prg, "StartY");
 
   gl.useProgram(prg);
 
@@ -143,6 +152,10 @@ function loadShader(shaderType, shaderSource) {
 } // End of 'loadShader' function
 
 let x = 1;
+
+// 
+let LocSx, LocSy, LocEx, LocEy;
+let StartX = -1, StartY = -1, EndX = 1, EndY = 1;
 
 // Main render frame function
 function render() {
@@ -165,6 +178,10 @@ function render() {
     gl.uniform1f(bLoc, PARAMS.background.b);
     gl.uniform1f(dxLoc, dx);
     gl.uniform1f(dyLoc, dy);
+    gl.uniform1f(LocSx, StartX);
+    gl.uniform1f(LocSy, StartY);
+    gl.uniform1f(LocEx, EndX);
+    gl.uniform1f(LocEy, EndY);
   }
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 } // End of 'render' function
@@ -199,12 +216,46 @@ function onScroll(event) {
 
   event.preventDefault();
   Mz += event.deltaY * sz;
+
+  let mx = (Mx / 2000.0 - 0.5) * 2;
+  let my = (1.0 - My / 2000.0 - 0.5) * 2;
+  let NewStartX, NewEndX, NewStartY, NewEndY;
+
+  // NewStartX = StartX - ((mx + 1.0) / 2.0 * (EndX - StartX)) * sz * event.deltaY;
+  // NewStartY = StartY - ((my + 1.0) / 2.0 * (EndY - StartY)) * sz * event.deltaY;
+  // NewEndX =   EndX + ((2.0 - (mx + 1.0) / 2.0) * (EndX - StartX)) * sz * event.deltaY;
+  // NewEndY =   EndY + ((2.0 - (my + 1.0) / 2.0) * (EndY - StartY)) * sz * event.deltaY;
+  // StartX = NewStartX;
+  // StartY = NewStartY;
+  // EndX = NewEndX;
+  // EndY = NewEndY;
+
+
+  let f;
+  //
+  if (event.deltaY < 0)
+    f = 0.99;
+  else
+    f = 1.01;
+
+  NewStartX = mx - f * (mx - StartX);
+  NewEndX = mx - f * (mx - EndX);
+  
+  NewStartY = my - f * (my - StartY);
+  NewEndY = my - f * (my - EndY);
+  
+  StartX = NewStartX;
+  StartY = NewStartY;
+  EndX = NewEndX;
+  EndY = NewEndY;
 }
 
 function onMouseMove(event) {
   if (event.buttons == 1) {
-    dx += event.movementX;
-    dy += event.movementY;
+    StartX -= event.movementX / 2000.0 * (EndX - StartX);
+    EndX -= event.movementX / 2000.0 * (EndX - StartX);
+    StartY += event.movementY / 2000.0 * (EndY - StartY);
+    EndY += event.movementY / 2000.0 * (EndY - StartY);
   }
 
   Mx = event.clientX;
@@ -225,4 +276,3 @@ window.addEventListener("load", () => {
   };
   draw();
 });
-window.addEventListener("mousemove", (e) => onMouseMove(e));

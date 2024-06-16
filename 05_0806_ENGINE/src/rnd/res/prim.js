@@ -122,7 +122,6 @@ export class Prim {
             this.shd.rnd.primUBO.update(new Float32Array(this.transform.mul(world).linearize()));
             this.shd.rnd.gl.bindVertexArray(this.vertexArrayId);
             this.shd.rnd.gl.bindBuffer(this.shd.rnd.gl.ELEMENT_ARRAY_BUFFER, this.IndexBufferId);
-            this.shd.rnd.gl.polygonMode(this.shd.rnd.gl.FRONT_AND_BACK, this.shd.rnd.gl.LINE);
             this.shd.rnd.gl.drawElements(this.shd.rnd.gl.TRIANGLES, this.numOfElements, this.shd.rnd.gl.UNSIGNED_INT, 0);
         }
     }
@@ -136,7 +135,6 @@ export class Prim {
             this.shd.rnd.primUBO.update(new Float32Array(this.transform.mul(world).linearize()));
             this.shd.rnd.gl.bindVertexArray(this.vertexArrayId);
             this.shd.rnd.gl.bindBuffer(this.shd.rnd.gl.ELEMENT_ARRAY_BUFFER, this.IndexBufferId);
-            //this.shd.rnd.gl.polygonMode(this.shd.rnd.gl.LINE);
             this.shd.rnd.gl.drawElements(this.shd.rnd.gl.TRIANGLES, this.numOfElements, this.shd.rnd.gl.UNSIGNED_INT, 0);
         }
     }

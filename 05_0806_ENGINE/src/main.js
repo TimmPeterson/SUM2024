@@ -184,9 +184,9 @@ function main() {
       //  Starting posting cringe 
       renders[i].renderStart();
 
-      if (i == 2)
-        cube.render(scales1[2].mul(matrScale(vec3(0.5)).mul(scales[2].mul(matrRotate(2 * t, vec3(0, 1, 0)).mul(rots[7].mul(matrTranslate(vec3(0, 0, -10))))))));
-
+      if (i == 2) {
+        cube.render(scales1[2].mul(matrScale(vec3(0.5)).mul(scales[2].mul(matrRotate(3 * t, vec3(0, 1, 0)).mul(rots[2].mul(matrTranslate(vec3(0, 0, -10))))))));
+      }  
       // Rendering [i] primitive
       prims[i].render(scales1[i].mul(scales[i].mul(matrRotate(t, vec3(0, 1, 0)).mul(rots[i].mul(matrTranslate(vec3(0, 0, -10)))))));
       renders[i].renderEnd();
