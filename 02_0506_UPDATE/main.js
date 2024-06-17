@@ -4,11 +4,27 @@ let canvas, gl, timeLoc;
 
 let MxLoc, MyLoc, MzLoc, rLoc, gLoc, bLoc, dxLoc, dyLoc;
 
+let typeOfFractal = 0, typeLoc;
+
 // OpenGL initialization function
 function initGL() {
   canvas = document.getElementById("myCan");
   canvas.addEventListener("mousemove", (e) => onMouseMove(e));
   canvas.addEventListener("wheel", (e) => onScroll(e));
+  canvas.addEventListener("touchstart", (e) => onTouchStart(e));
+  canvas.addEventListener("touchmove", (e) => onTouchMove(e));
+  canvas.addEventListener("touchend", (e) => onTouchEnd(e));
+
+  canvas.hm = Hammer(canvas);
+  canvas.hm.get("tap").set({ enable: true });
+  canvas.hm.on("tap", () => {
+    if (typeOfFractal == 0)
+      typeOfFractal = 1;
+    else
+      typeOfFractal = 0;
+    StartX = StartY = -2;
+    EndX = EndY = 2;
+  });
 
   gl = canvas.getContext("webgl2");
   gl.clearColor(0.3, 0.47, 0.8, 1);
@@ -46,11 +62,16 @@ function initGL() {
   uniform float StartY;
   uniform float EndX;
   uniform float EndY;
-
+  uniform float TypeOfFractal;
 
   vec2 CmplMulCmpl( vec2 A, vec2 B )
   {
-    return vec2(A.x * B.x - A.y * B.y, A.x * B.y + A.x * B.y);
+    return vec2(A.x * B.x - A.y * B.y, A.x * B.y + A.y * B.x);
+  }
+
+  vec2 CmplDivCmpl( vec2 A, vec2 B )
+  {
+    return vec2(dot(A, B), (A.y * B.x - A.x * B.y)) / dot(B, B);
   }
 
   vec2 f( vec2 Z ) 
@@ -62,7 +83,6 @@ function initGL() {
   {
     int n = 0;  
     vec2 Z, Z0;
-    //vec2 m = (vec2(1000.0 - Mx, My) / vec2(1000.0) - 0.5) * 2.0;
 
     Z = (gl_FragCoord.xy / vec2(2000.0) - 0.5) * 2.0;
     Z.x = (Z.x + 1.0) / 2.0 * (EndX - StartX) + StartX;
@@ -71,11 +91,15 @@ function initGL() {
 
     while (n < 255 && dot(Z, Z) < 4.0)
     {
-      Z = f(Z);
-      Z = Z + Z0;
+      if (TypeOfFractal == 0.0)
+      {
+        Z = f(Z); Z = Z + Z0;
+      }
+      else
+        Z = Z - CmplDivCmpl(CmplMulCmpl(Z, CmplMulCmpl(Z, Z)) - .1, 3.0 * CmplMulCmpl(Z, Z)); //f(Z);
       n++;
     }
-    OutColor = vec4(vec3(3.0 * vec3(float(n) / 250.0, float(n) / 230.0, float(n) / 240.0)) * vec3(R, G, B) / 255.0, 1.0);
+    OutColor = vec4(vec3(vec3(float(n) / 250.0, float(n) / 230.0, float(n) / 240.0)), 1.0);
   }
   `;
   let vs = loadShader(gl.VERTEX_SHADER, vs_txt),
@@ -132,6 +156,7 @@ function initGL() {
   LocSx = gl.getUniformLocation(prg, "StartX");
   LocEy = gl.getUniformLocation(prg, "EndY");
   LocSy = gl.getUniformLocation(prg, "StartY");
+  typeLoc = gl.getUniformLocation(prg, "TypeOfFractal");
 
   gl.useProgram(prg);
 
@@ -155,7 +180,7 @@ let x = 1;
 
 // 
 let LocSx, LocSy, LocEx, LocEy;
-let StartX = -1, StartY = -1, EndX = 1, EndY = 1;
+let StartX = -2, StartY = -2, EndX = 2, EndY = 2;
 
 // Main render frame function
 function render() {
@@ -182,6 +207,7 @@ function render() {
     gl.uniform1f(LocSy, StartY);
     gl.uniform1f(LocEx, EndX);
     gl.uniform1f(LocEy, EndY);
+    gl.uniform1f(typeLoc, typeOfFractal);
   }
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 } // End of 'render' function
@@ -221,29 +247,21 @@ function onScroll(event) {
   let my = (1.0 - My / 2000.0 - 0.5) * 2;
   let NewStartX, NewEndX, NewStartY, NewEndY;
 
-  // NewStartX = StartX - ((mx + 1.0) / 2.0 * (EndX - StartX)) * sz * event.deltaY;
-  // NewStartY = StartY - ((my + 1.0) / 2.0 * (EndY - StartY)) * sz * event.deltaY;
-  // NewEndX =   EndX + ((2.0 - (mx + 1.0) / 2.0) * (EndX - StartX)) * sz * event.deltaY;
-  // NewEndY =   EndY + ((2.0 - (my + 1.0) / 2.0) * (EndY - StartY)) * sz * event.deltaY;
-  // StartX = NewStartX;
-  // StartY = NewStartY;
-  // EndX = NewEndX;
-  // EndY = NewEndY;
-
-
   let f;
-  //
   if (event.deltaY < 0)
-    f = 0.99;
+    f = 0.9;
   else
-    f = 1.01;
+    f = 1 / .9;
 
-  NewStartX = mx - f * (mx - StartX);
-  NewEndX = mx - f * (mx - EndX);
-  
-  NewStartY = my - f * (my - StartY);
-  NewEndY = my - f * (my - EndY);
-  
+  let nmx = (mx + 1) / 2 * (EndX - StartX) + StartX;
+  let nmy = (my + 1) / 2 * (EndY - StartY) + StartY;
+
+  NewStartX = nmx - f * (nmx - StartX);
+  NewEndX = nmx - f * (nmx - EndX);
+
+  NewStartY = nmy - f * (nmy - StartY);
+  NewEndY = nmy - f * (nmy - EndY);
+
   StartX = NewStartX;
   StartY = NewStartY;
   EndX = NewEndX;
@@ -252,26 +270,82 @@ function onScroll(event) {
 
 function onMouseMove(event) {
   if (event.buttons == 1) {
-    StartX -= event.movementX / 2000.0 * (EndX - StartX);
-    EndX -= event.movementX / 2000.0 * (EndX - StartX);
-    StartY += event.movementY / 2000.0 * (EndY - StartY);
-    EndY += event.movementY / 2000.0 * (EndY - StartY);
+    let dx = EndX - StartX;
+    let dy = EndY - StartY;
+    StartX -= event.movementX / 2000.0 * dx;
+    EndX -= event.movementX / 2000.0 * dx;
+    StartY += event.movementY / 2000.0 * dy;
+    EndY += event.movementY / 2000.0 * dy;
   }
-
-  Mx = event.clientX;
-  My = event.clientY;
-
+  Mx = event.offsetX;
+  My = event.offsetY;
   event.preventDefault();
 }
 
+let scaling = false;
+let prev_dist = 0;
+function onTouchStart(e) {
+  if (e.touches.length === 2) {
+    scaling = true;
+    prev_dist = Math.hypot(
+      e.touches[0].pageX - e.touches[1].pageX,
+      e.touches[0].pageY - e.touches[1].pageY);
+    pinchStart(e);
+  }
+}
+
+function onTouchMove(e) {
+  e.preventDefault();
+  if (scaling) {
+    let NewStartX, NewEndX, NewStartY, NewEndY;
+
+    let dist = Math.hypot(
+      e.touches[0].pageX - e.touches[1].pageX,
+      e.touches[0].pageY - e.touches[1].pageY);
+    let delta = dist - prev_dist;
+    prev_dist = dist;
+
+    let center = {
+      X: (e.touches[0].pageX + e.touches[1].pageX) / 2.0,
+      Y: (e.touches[0].pageY + e.touches[1].pageY) / 2.0,
+    };
+
+    let mx = (center.X / 2000.0 - 0.5) * 2;
+    let my = (1.0 - center.Y / 2000.0 - 0.5) * 2;
+
+    let f;
+    if (delta > 0)
+      f = 0.95;
+    else
+      f = 1 / .95;
+
+    let nmx = (mx + 1) / 2 * (EndX - StartX) + StartX;
+    let nmy = (my + 1) / 2 * (EndY - StartY) + StartY;
+
+    NewStartX = nmx - f * (nmx - StartX);
+    NewEndX = nmx - f * (nmx - EndX);
+
+    NewStartY = nmy - f * (nmy - StartY);
+    NewEndY = nmy - f * (nmy - EndY);
+
+    StartX = NewStartX;
+    StartY = NewStartY;
+    EndX = NewEndX;
+    EndY = NewEndY;
+  }
+}
+
+function onTouchEnd(e) {
+  if (scaling) {
+    pinchEnd(e);
+    scaling = false;
+  }
+}
 
 window.addEventListener("load", () => {
   initGL();
   const draw = () => {
-    // drawing
     render();
-
-    // animation register
     window.requestAnimationFrame(draw);
   };
   draw();
