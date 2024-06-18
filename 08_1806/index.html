@@ -4,17 +4,18 @@
 <head>
   <meta name="google" content="notranslate">
   <meta charset="utf-8" />
-  <link rel="shortcut icon" href="bin/PNG.PNG" type="image/png" />
+  <link rel="shortcut icon" href="bin/textures/PNG.PNG" type="image/png" />
   <link rel="stylesheet" href="style.css" type="text/css" />
   <title>CGSG:TP5 CGSG'SummerPractice2024. Platon bodies drawing</title>
   <script type="module" src="./output/main.js"></script>
+  <script src="../lib/hammer.min.js"></script>
+  <script src="../node_modules/jimp/browser/lib/jimp.js"></script>
 </head>
 
 <body>
-  <h1>Before:</h1>
-  <canvas id="myCan" width="1500px" height="1164px" style="width: 30%"></canvas>
-  <h1>After:</h1>
-  <canvas id="myCan1" width="1500px" height="1164px" style="width: 30%"></canvas>
+  <canvas id="flowFrame" width="10" height="10" class="flowCanv"></canvas>
+  <canvas id="mainFrame" width="1920" height="1080" style="width: 100%"></canvas>
+  <p id="p"></p><br />
 </body>
 
 </html>

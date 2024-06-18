@@ -131,6 +131,7 @@ function main() {
             }
     }
     img_dst.src = "./bin/em1.jpg";
+    //img_dst.src = "./bin/t.png";
 }
 
 window.addEventListener("load", () => {
