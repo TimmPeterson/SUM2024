@@ -25,7 +25,7 @@ uniform u_material {
 uniform float Time;
 
 void main(void) {
-    vec3 L = -normalize(vec3(0.5f, 1.0f, 0.5f));
+    vec3 L = -normalize(vec3(0.5f, 0.7f, 0.3f));
     vec3 N = normalize(DrawNormal);
     vec2 t = DrawTexCoord;
 

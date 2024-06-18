@@ -2,6 +2,8 @@ import { vec3 } from "../mth/vec3.js"
 import { mat4, matrFrustum, matrView } from "../mth/mat4.js"
 import { UniformBuffer } from "./res/buf.js"
 import { Timer } from "../timer/timer.js"
+import { Shader } from "./res/shd.js"
+import { Texture } from "./res/tex.js"
 
 // General class for rendering.
 // One render per canvas.
@@ -83,6 +85,18 @@ export class Render {
         // Initializing timer
         this.timer = new Timer();
         this.timeUBO = new UniformBuffer(this, "u_time", 16, 2);
+    }
+
+    newShader(fileName) {
+        return new Shader(this, fileName);
+    }
+
+    newTexture(fileName) {
+        return new Texture(this, fileName);
+    }
+
+    newUniformBuffer(bufferName, bufferSize, binding) {
+        return new UniformBuffer(this, bufferName, bufferSize, binding);
     }
 }
 

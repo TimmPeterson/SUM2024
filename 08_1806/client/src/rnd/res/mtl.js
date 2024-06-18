@@ -1,5 +1,6 @@
 import { vec3 } from "../../mth/vec3.js"
 import { UniformBuffer } from "./buf.js"
+import { Prim } from "./prim.js";
 
 // Class for holding material properties of primitive.
 export class Material {
@@ -49,6 +50,10 @@ export class Material {
             return;
 
         this.textures[num] = texture;
+    }
+
+    newPrimitive(vertexes, indicies) {
+        return new Prim(this, vertexes, indicies);
     }
 };
 

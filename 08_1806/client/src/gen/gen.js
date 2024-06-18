@@ -46,12 +46,13 @@ export class Lab {
     }
 }
 
-export function imgToContext2d(context, image) {
+export function imgToContext2d(canvas, context, image) {
+    let fracw = Math.floor(canvas.width / image.bitmap.width);
+    let frach = Math.floor(canvas.height / image.bitmap.height);
     for (let y = 0; y < image.bitmap.height; y++)
         for (let x = 0; x < image.bitmap.width; x++) {
             let c = Jimp.intToRGBA(image.getPixelColor(x, y));
             context.fillStyle = `rgba(${c.r}, ${c.g}, ${c.b}, 1.0)`;
-            context.fillStyle = `rgba(0, 0, 0, 1.0)`;
-            context.fillRect(x, y, 1, 1);
+            context.fillRect(x * fracw, y * frach, fracw, frach);
         }
 }

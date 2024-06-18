@@ -1,24 +1,20 @@
 import { Render } from "./rnd/rnd.js"
 import { vec3 } from "./mth/vec3.js"
 import { mat4, matrRotate, matrTranslate, matrScale } from "./mth/mat4.js"
-import { Prim, vertex } from "./rnd/res/prim.js"
 import { Figure } from "./plat/plat.js"
-import { Shader } from "./rnd/res/shd.js"
-import { Timer } from "./timer/timer.js"
-import { UniformBuffer } from "./rnd/res/buf.js"
-import { Material } from "./rnd/res/mtl.js"
-import { Texture } from "./rnd/res/tex.js"
 import { Lab, imgToContext2d } from "./gen/gen.js"
 import { Control } from "./ctrl/ctrl.js"
 
 function main() {
+  let figure = new Figure();
+  figure.setDodecahedron();
+
   let canvas = document.getElementById("mainFrame");
   let render = new Render(canvas);
-  let shader = new Shader(render, "default");
-  let material = new Material(shader, vec3(0.1), vec3(0, 0.5, 1.0), vec3(0.3), 90, 1.0);
-  let figure = new Figure();
-  figure.setDodecahedron()
+  let shader = render.newShader("default");
+  let material = shader.newMaterial(vec3(0.1), vec3(0, 0.5, 1.0), vec3(0.3), 90, 1.0);
   let prim = figure.makePrim(material);
+
   let control = new Control(render);
   let lab = new Lab(material, "./bin/maps/map.png");
   render.setCam(vec3(5, 5, 5), vec3(0), vec3(0, 1, 0));
@@ -27,7 +23,7 @@ function main() {
   let contextFlow = canvasFlow.getContext("2d");
   canvasFlow.addEventListener("click", (e) => {
     if (lab.image != null)
-      imgToContext2d(contextFlow, lab.image);
+      imgToContext2d(canvasFlow, contextFlow, lab.image);
   });
 
   canvas.onclick = function () {

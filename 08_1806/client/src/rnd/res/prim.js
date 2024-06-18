@@ -1,8 +1,6 @@
-import { Render } from "../rnd.js"
 import { vec3 } from "../../mth/vec3.js"
 import { vec2 } from "../../mth/vec2.js"
-import { mat4, matrFrustum } from "../../mth/mat4.js"
-import { Shader } from "../res/shd.js"
+import { mat4 } from "../../mth/mat4.js"
 
 class _vertex {
     constructor(pos, norm, tex) {

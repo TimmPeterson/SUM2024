@@ -1,5 +1,3 @@
-import { Shader } from "./shd.js"
-
 class _buffer {
     constructor(rnd, type, size) {
         this.rnd = rnd;

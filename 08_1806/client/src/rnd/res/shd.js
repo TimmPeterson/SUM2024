@@ -1,3 +1,5 @@
+import { Material } from "./mtl";
+
 export class Shader {
     constructor(rnd, name) {
         this.rnd = rnd;
@@ -103,5 +105,9 @@ export class Shader {
             return true;
         }
         return false;
+    }
+
+    newMaterial(ambient, diffuse, specular, phong, trans) {
+        return new Material(this, ambient, diffuse, specular, phong, trans);
     }
 }
