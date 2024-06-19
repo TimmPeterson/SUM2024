@@ -5,6 +5,7 @@ export class Texture {
         this.rnd = rnd;
         this.texId = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, this.textId);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
         const level = 0;
         const internalFormat = gl.RGBA;

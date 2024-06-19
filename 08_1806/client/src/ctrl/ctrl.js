@@ -1,5 +1,6 @@
 import { matrRotate } from "../mth/mat4";
 import { vec3 } from "../mth/vec3";
+import { mat4 } from "../mth/mat4";
 
 export class Control {
     constructor(render) {
@@ -11,6 +12,7 @@ export class Control {
         this.sense = 0.0022;
         this.render = render;
         this.keyTab = {};
+        this.transform = mat4(1);
 
         render.canvas.onmousemove = (e) => {
             if (e.buttons == 1) {
@@ -49,9 +51,13 @@ export class Control {
         };
 
         window.onmousemove = async (e) => {
-            this.forward = this.forward.mulmatr(matrRotate(-e.movementX * this.sense, this.up));
-            this.right = this.right.mulmatr(matrRotate(-e.movementX * this.sense, this.up));
+            this.forward = this.forward.mulmatr(matrRotate(-e.movementX * this.sense, vec3(0, 1, 0)));
+            this.right = this.right.mulmatr(matrRotate(-e.movementX * this.sense, vec3(0, 1, 0)));
             this.forward = this.forward.mulmatr(matrRotate(e.movementY * this.sense, this.right));
+
+            this.transform = this.transform.mul(matrRotate(-e.movementX * this.sense, vec3(0, 1, 0)));
+            this.transform = this.transform.mul(matrRotate(e.movementY * this.sense, this.right));
+            //this.up = this.up.mulmatr(matrRotate(e.movementY * this.sense, this.right));
         }
     }
     response() {

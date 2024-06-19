@@ -1,9 +1,12 @@
 import { vec3 } from "../mth/vec3.js"
+import { vec2 } from "../mth/vec2.js"
 import { mat4, matrFrustum, matrView } from "../mth/mat4.js"
 import { UniformBuffer } from "./res/buf.js"
 import { Timer } from "../timer/timer.js"
 import { Shader } from "./res/shd.js"
 import { Texture } from "./res/tex.js"
+import { vertex } from "./res/prim.js"
+import { Control } from "../ctrl/ctrl.js"
 
 // General class for rendering.
 // One render per canvas.
@@ -29,11 +32,29 @@ export class Render {
     }
 
     updateMatrixes() {
-        this.matrixUBO.update(new Float32Array(this.matrProj.linearize().concat(this.matrView.linearize())));
+        let right = vec3(
+            this.matrView.a[0][0],
+            this.matrView.a[1][0],
+            this.matrView.a[2][0]
+        );
+        let up = vec3(
+            this.matrView.a[0][1],
+            this.matrView.a[1][1],
+            this.matrView.a[2][1]);
+        let dir = vec3(-this.matrView.a[0][2],
+            -this.matrView.a[1][2],
+            -this.matrView.a[2][2]);
+
+        let data = this.matrProj.linearize().concat(this.matrView.linearize());
+        data = data.concat(dir.linearize(), [0], right.linearize(), [0], up.linearize(), [0]);
+        data = data.concat([this.canvas.width, this.canvas.height, this.projSize, this.projDist]);
+        this.matrixUBO.update(new Float32Array(data));
     }
 
     renderStart() {
         this.timer.response();
+        this.control.response();
+
         //this.timeUBO.update(new Float32Array([this.timer.localTime, this.timer.localDeltaTime, this.timer.globalTime, this.timer.globalDeltaTime]));
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
         this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
@@ -56,7 +77,7 @@ export class Render {
         this.canvas = canvas;
 
         // Default camera properties
-        this.projSize = 0.3;
+        this.projSize = 0.2;
         this.projDist = 0.1;
         this.farClip = 300;
 
@@ -73,8 +94,11 @@ export class Render {
         this.gl.clearColor(0.9, 0.9, 0.9, 1);
         this.gl.enable(this.gl.DEPTH_TEST);
 
+        // Contol init
+        this.control = new Control(this);
+
         // Initializing camera
-        this.matrixUBO = new UniformBuffer(this, "u_camera", 16 * 4 * 2, 0);
+        this.matrixUBO = new UniformBuffer(this, "u_camera", 16 * 4 * 2 + 4 * 16, 0);
         this.setFrustum();
         this.setCam(vec3(0, 0, 0), vec3(0, 0, -1), vec3(0, 1, 0));
         this.updateMatrixes();
@@ -97,6 +121,16 @@ export class Render {
 
     newUniformBuffer(bufferName, bufferSize, binding) {
         return new UniformBuffer(this, bufferName, bufferSize, binding);
+    }
+
+    newSkySphere(texName) {
+        const vertexes = [vertex(vec3(-1, -1, 0.999), vec3(0)), vertex(vec3(-1, 3, 0.999), vec3(0)), vertex(vec3(3, -1, 0.999), vec3(0))];
+        const indicies = [0, 1, 2];
+        const shd = this.newShader("sky sphere");
+        const mtl = shd.newMaterial(vec3(0), vec3(0), vec3(0), 0, 1.0);
+        const tex = this.newTexture(texName);
+        mtl.attachTexture(tex, 0);
+        return mtl.newPrimitive(vertexes, indicies);
     }
 }
 

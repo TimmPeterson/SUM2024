@@ -7,6 +7,7 @@ export class Lab {
         this.map;
         this.blocks = [];
 
+
         let fcube = new Figure();
         fcube.setCube();
         this.cube = fcube.makePrim(mtl);
