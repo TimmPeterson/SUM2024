@@ -2,35 +2,33 @@ import { mat4, matrTranslate } from "../mth/mat4";
 import { Figure } from "../plat/plat.js"
 import { vec3 } from "../mth/vec3.js";
 
-export class Lab {
-    constructor(mtl, fileName) {
+export class Room {
+    constructor(render, fileName) {
         this.map;
         this.blocks = [];
 
+        this.shader = render.newShader("default");
+        this.mtl = this.shader.newMaterial(vec3(0.1), vec3(1, 0.5, 1.0), vec3(0.3), 90, 0.7);
+        this.tex = render.newTexture("./bin/textures/em.jpg");
+        this.mtl.attachTexture(this.tex, 0);
+        this.mtl.update();
+        this.mtl1 = this.shader.newMaterial(vec3(0.1), vec3(1, 0.5, 1.0), vec3(0.3), 90, 1.0);
+        this.tex1 = render.newTexture("./bin/textures/lapis.jpg");
+        this.mtl1.attachTexture(this.tex1, 0);
+        this.mtl1.update();
 
         let fcube = new Figure();
         fcube.setCube();
-        this.cube = fcube.makePrim(mtl);
+        this.cube = fcube.makePrim(this.mtl);
+        this.cubeFloor = fcube.makePrim(this.mtl1);
         this.map = null;
         this.image = null;
         Jimp.read(fileName, (err, image) => {
             this.map = image.bitmap.data;
             this.image = image;
-            /*
-            for (let y = 0; y < image.bitmap.height; y++)
-                for (let x = 0; x < image.bitmap.width; x++) {
-                    let red = Math.floor(Jimp.intToRGBA(image.getPixelColor(x, y)).r / 255 * 5);
-
-                    for (let i = 0; i < red; i++) {
-                        let cube = fcube.makePrim(mtl);
-                        cube.transform = matrTranslate(vec3(x, i, y));
-                        this.blocks.push(cube);
-                    }
-                }
-                    */
         });
     }
-    render() {
+    render(world) {
         if (this.map == null)
             return;
         for (let block of this.blocks) {
@@ -38,14 +36,22 @@ export class Lab {
         }
         for (let y = 0; y < this.image.bitmap.height; y++)
             for (let x = 0; x < this.image.bitmap.width; x++) {
-                let red = Math.floor(Jimp.intToRGBA(this.image.getPixelColor(x, y)).r / 255 * 5);
+                let c = Jimp.intToRGBA(this.image.getPixelColor(x, y))
 
-                for (let i = 0; i < red; i++) {
-                    this.cube.render(matrTranslate(vec3(x, i, y)));
+                if (c.r == 255) {
+                    for (let i = 0; i < 5; i++) {
+                        this.cube.render(matrTranslate(vec3(x, i, y)).mul(world));
+                    }
+                } else if (c.b == 255) {
+                    this.cubeFloor.render(matrTranslate(vec3(x, 0, y)).mul(world));
                 }
             }
     }
-}
+
+    putPixel(x, y, c) {
+        this.image.setPixelColor(x, y, c);
+    }
+};
 
 export function imgToContext2d(canvas, context, image) {
     let fracw = Math.floor(canvas.width / image.bitmap.width);

@@ -2,20 +2,19 @@
 <html lang="ru" class="notranslate" translate="no">
 
 <head>
-  <meta name="google" content="notranslate">
-  <meta charset="utf-8" />
-  <link rel="shortcut icon" href="bin/textures/PNG.PNG" type="image/png" />
-  <link rel="stylesheet" href="style.css" type="text/css" />
-  <title>CGSG:TP5 CGSG'SummerPractice2024. Platon bodies drawing</title>
-  <script type="module" src="./output/main.js"></script>
-  <script src="../lib/hammer.min.js"></script>
-  <script src="../node_modules/jimp/browser/lib/jimp.js"></script>
+    <meta name="google" content="notranslate">
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="bin/textures/PNG.PNG" type="image/png" />
+    <link rel="stylesheet" href="login/login.css" type="text/css" />
+    <script src="login/login.js"></script>
+    <title>CGSG:TP5 CGSG'SummerPractice2024. Platon bodies drawing</title>
 </head>
 
 <body>
-  <canvas id="flowFrame" width="255" height="255" class="flowCanv"></canvas>
-  <canvas id="mainFrame" width="1920" height="1080" style="width: 100%"></canvas>
-  <p id="p"></p><br />
+    <input id="name" type="text" name="Name" placeholder="Name"></br>
+    <a href="engine">
+        <button type="button" onclick="onLogin(event)" role="link" class="submit" id="userNameSubmit">Join</button>
+    </a>
 </body>
 
 </html>

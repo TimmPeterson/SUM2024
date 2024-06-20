@@ -2,7 +2,7 @@ import http from "node:http";
 import { WebSocketServer } from "ws";
 import express from "express";
 import { MongoClient, ObjectId } from "mongodb";
-import { serverInit, onConnection, onMessage } from "./players.js";
+import { serverInit, onConnection, onMessage, onClose } from "./players.js";
 
 serverInit();
 
@@ -20,9 +20,6 @@ const server = http.createServer(app);
 
 const wss = new WebSocketServer({ server });
 
-// Pool of all sockets
-const socketsPool = [];
-
 wss.on("connection", (ws) => {
   // Attaching call back on getting message from client
   ws.on("message", (m) => {
@@ -32,12 +29,10 @@ wss.on("connection", (ws) => {
 
   // Removing socket from pool of sockets on closikng it
   ws.on("close", () => {
-    socketsPool.splice(socketsPool.indexOf(ws), 1);
+    onClose(ws);
   });
 
   onConnection(ws);
-  // Pushing new socket to a pool of sockets
-  socketsPool.push(ws);
 });
 
 const host = "localhost";
