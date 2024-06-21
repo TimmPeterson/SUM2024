@@ -5,8 +5,8 @@ let db;
 let playersPool = {};
 
 export async function serverInit() {
-    db = new DB("mongodb://127.0.0.1:27017", "TP5", "players");
-    await db.connect();
+    //db = new DB("mongodb://127.0.0.1:27017", "TP5", "players");
+    //await db.connect();
 }
 
 let noofUser = 0;

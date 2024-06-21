@@ -7,6 +7,73 @@ body {
   padding: 0;
 }
 
+/*
 .flowCanv {
-  /*position: absolute;*/
+  position: absolute;
+}
+  */
+canvas {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: auto;
+}
+
+#apply {
+  border-radius: 14px;
+  margin: 20px;
+  width: 300px;
+  height: 30px;
+}
+
+textarea,
+code {
+  top: 100px;
+  border: 0;
+  margin: 20px;
+  width: 300px;
+  height: 800px;
+  min-height: 800px;
+  font-size: 14px;
+  padding: 20px !important;
+  line-height: 21px;
+  position: absolute;
+  font-family: Consolas, Liberation Mono, Courier, monospace;
+  overflow: visible;
+  transition: all 0.5s ease-in-out;
+}
+
+textarea {
+  background: transparent !important;
+  height: auto;
+  resize: none;
+  color: #fff;
+  text-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
+  text-fill-color: transparent;
+  -webkit-text-fill-color: transparent;
+
+  &::-webkit-input-placeholder {
+    color: rgba(255, 255, 255, 1);
+  }
+
+  &:focus {
+    outline: 0;
+    border: 0;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+  }
+}
+
+pre {
+  overflow: scroll;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+  code {
+    background: #1f1f1f !important;
+    color: #adadad;
+  }
 }
