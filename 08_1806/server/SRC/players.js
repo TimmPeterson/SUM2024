@@ -26,6 +26,12 @@ export function onConnection(ws) {
 export function onMessage(ws, m) {
     let message = JSON.parse(m.toString());
 
+    if (message.type == "shader") {
+        for (let s in socketsPool) {
+            socketsPool[s].send(JSON.stringify(message));
+        }
+    }
+
     if (message.type == "coords") {
         socketsPool[message.id] = ws;
         playersPool[message.id] = { id: message.id, coords: message.coords };

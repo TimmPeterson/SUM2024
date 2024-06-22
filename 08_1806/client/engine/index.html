@@ -1,63 +1,27 @@
 <!DOCTYPE html>
 <html lang="ru" class="notranslate" translate="no">
-  <head>
-    <meta name="google" content="notranslate" />
-    <meta charset="utf-8" />
-    <link rel="shortcut icon" href="bin/textures/PNG.PNG" type="image/png" />
-    <link rel="stylesheet" href="style.css" type="text/css" />
-    <title>CGSG:TP5 CGSG'SummerPractice2024. Platon bodies drawing</title>
-    <script type="module" src="./out/main.js"></script>
-    <script src="./lib/hammer.min.js"></script>
-    <script src="./node_modules/jimp/browser/lib/jimp.js"></script>
-    <script src="./node_modules/crypto-js/crypto-js.js"></script>
-    <script src="./lib/hljs/highlight.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="./lib/hljs/styles/tokyo-night-dark.css"
-      type="text/css"
-    />
-  </head>
 
-  <body>
-    <pre>
-      <code id="codeArea" class="language-glsl">
-// Uniform bufffer for time sync.
-// Updates on each single frame
-uniform u_time {
-    vec4 LocalTimeLocalDeltaTimeGlobalTimeGlobalDeltaTime;
-};
-
-#define LocalTime LocalTimeLocalDeltaTimeGlobalTimeGlobalDeltaTime.x 
-#define LocalDeltaTime LocalTimeLocalDeltaTimeGlobalTimeGlobalDeltaTime.y 
-#define GlobalTime LocalTimeLocalDeltaTimeGlobalTimeGlobalDeltaTime.z
-#define GlobalDeltaTime LocalTimeLocalDeltaTimeGlobalTimeGlobalDeltaTime.w 
-
-void main(void) {
-    gl_Position = MatrProj * MatrView * MatrWorld * vec4(InPosition, 1);
-    DrawPos = vec3(MatrWorld * vec4(InPosition.xyz, 1.0f));
-    DrawNormal = mat3(transpose(inverse(MatrWorld))) * InNormal;
-    DrawTexCoord = InTexCoord;
-}
-      </code>
-    </pre>
-    <script>
-      hljs.highlightAll();
-    </script>
-    <button id="apply" type="button">Apply</button><br />
-    <textarea id="textArea">
-      <pre>
-        <code class="language-glsl">
-        </code>
-      </pre>
-    </textarea>
-    <canvas
-      id="mainFrame"
-      width="1536"
-      height="1080"
-      style="width: 80%"
-    ></canvas>
-    <!--<canvas id="flowFrame" width="255" height="255" class="flowCanv"></canvas>
+<head>
+  <meta name="google" content="notranslate" />
+  <meta charset="utf-8" />
+  <link rel="shortcut icon" href="bin/textures/PNG.PNG" type="image/png" />
+  <link rel="stylesheet" href="style.css" type="text/css" />
+  <title>CGSG:TP5 CGSG'SummerPractice2024. Platon bodies drawing</title>
+  <script type="module" src="./out/main.js"></script>
+  <script src="./lib/hammer.min.js"></script>
+  <script src="./node_modules/jimp/browser/lib/jimp.js"></script>
+  <script src="./node_modules/crypto-js/crypto-js.js"></script>
+  <script src="./lib/hljs/highlight.min.js"></script>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <link rel="stylesheet" href="./lib/hljs/styles/tokyo-night-dark.css" type="text/css" />
+</head>
+<button id="apply" type="button">Apply</button><br />
+<textarea style="width: 20%; max-width: 19%; max-height: 95vh;" id="textArea"
+  placeholder="Place shader code here"></textarea>
+<canvas id="mainFrame" width="1536" height="1080" style="width: 80% "></canvas>
+<!--<canvas id="flowFrame" width="255" height="255" class="flowCanv"></canvas>
      <p id="p"></p> 
     <br />-->
-  </body>
+</body>
+
 </html>

@@ -68,8 +68,34 @@ function main() {
   */
 
   canvas.onclick = function () {
+    $("#textArea").slideUp();
+    $('#apply').slideUp();
+    $('#mainFrame').css({ 'width': '100vw' });
     canvas.requestPointerLock();
   };
+
+  // window.addEventListener("dblclick", e => {
+  //   if (e.button == 1) {
+  //     $("#textArea").slideDown();
+  //     $('#apply').slideDown();
+  //     $('#mainFrame').css({ 'width': '80vw' });
+  //   }
+  // });
+  window.addEventListener("keydown", e => {
+    if (e.code == 'Tab') {
+      $("#textArea").slideDown();
+      $('#apply').slideDown();
+      $('#mainFrame').css({ 'width': '80vw' });
+    }
+  });
+  /*$('html').on('keypress', (e) => {
+    if (e.code == 'KeyZ') {
+      $("#textArea").slideDown();
+      $('#apply').slideDown();
+      $('#mainFrame').css({ 'width': '80vw' });
+      canvas.requestPointerLock();
+    }
+  });*/
 
   //let sky = render.newSkySphere("./bin/textures/space.png");
   //let sky = render.newSkySphere("./bin/textures/water.jpg");
@@ -80,12 +106,18 @@ function main() {
     render.renderStart();
     for (let player in p.players) {
       if (p.id != player) {
+        p.prims[player].mtl.attachTexture(p.avatars[player], 0);
+        p.prims[player].render(mat4(p.players[player].coords.trans).mul(
+          matrTranslate(p.players[player].coords.pos)
+        ));
+        /*
+        pl_pr.mtl.shd = p.shaders[player];
         pl_pr.mtl.attachTexture(p.avatars[player], 0);
         pl_pr.render(
           mat4(p.players[player].coords.trans).mul(
             matrTranslate(p.players[player].coords.pos)
           )
-        );
+        );*/
       }
     }
 
