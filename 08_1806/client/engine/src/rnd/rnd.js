@@ -83,8 +83,8 @@ export class Render {
 
         // Evaluating canvas size
         let rect = canvas.getBoundingClientRect();
-        this.width = rect.right - rect.left + 1;
-        this.height = rect.bottom - rect.top + 1;
+        this.width = 1920;//rect.right - rect.left + 1;
+        this.height = 1080;//rect.bottom - rect.top + 1;
 
         // Getting GL context
         this.gl = canvas.getContext("webgl2", {

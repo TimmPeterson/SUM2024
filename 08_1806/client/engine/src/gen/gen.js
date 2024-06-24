@@ -13,9 +13,9 @@ export class Room {
       vec3(1, 0.5, 1.0),
       vec3(0.3),
       90,
-      0.7
+      1.0
     );
-    this.tex = render.newTexture("./bin/textures/em.jpg");
+    this.tex = render.newTexture("./bin/textures/wallpaper.png ");
     this.mtl.attachTexture(this.tex, 0);
     this.mtl.update();
     this.mtl1 = this.shader.newMaterial(
@@ -25,7 +25,7 @@ export class Room {
       90,
       1.0
     );
-    this.tex1 = render.newTexture("./bin/textures/lapis.jpg");
+    this.tex1 = render.newTexture("./bin/textures/p.png");
     this.mtl1.attachTexture(this.tex1, 0);
     this.mtl1.update();
 

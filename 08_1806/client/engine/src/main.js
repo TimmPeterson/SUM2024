@@ -16,27 +16,7 @@ function main() {
   let render = new Render(canvas);
   wsInit(render);
   let shader = render.newShader("default");
-  //shader.update(src, "frag");
   shaderUpdateInit(shader);
-  /*let material = shader.newMaterial(
-    vec3(0.1),
-    vec3(0, 0.5, 1.0),
-    vec3(0.3),
-    90,
-    1.0
-  );*/
-  /*
-  let material1 = shader.newMaterial(
-    vec3(0.1),
-    vec3(1, 0.5, 1.0),
-    vec3(0.3),
-    90,
-    0.5
-  );
-  let prim = figure.makePrim(material);
-  material1.attachTexture(tex, 0);
-  material1.update();
-  */
   let tex = render.newTexture("./bin/textures/em.jpg");
   render.setCam(vec3(5, 5, 5), vec3(0), vec3(0, 1, 0));
   let lab = new Labirint(render, "./bin/labs/def.png");
@@ -53,20 +33,6 @@ function main() {
   f.setCube();
   let pl_pr = f.makePrim(pl_mtl);
 
-  /*
-    let canvasFlow = document.getElementById("flowFrame");
-  let contextFlow = canvasFlow.getContext("2d");
-  canvasFlow.addEventListener("click", (e) => {
-    if (lab.image != null) {
-      let fracw = Math.floor(contextFlow.width / lab.image.bitmap.width);
-      let frach = Math.floor(contextFlow.height / lab.image.bitmap.height);
-
-      lab.image.setPixelColor("#FFFFFF", e.offsetX / fracw, e.offsetY / frach);
-      imgToContext2d(canvasFlow, contextFlow, lab.image);
-    }
-  });
-  */
-
   canvas.onclick = function () {
     $("#textArea").slideUp();
     $('#apply').slideUp();
@@ -74,13 +40,6 @@ function main() {
     canvas.requestPointerLock();
   };
 
-  // window.addEventListener("dblclick", e => {
-  //   if (e.button == 1) {
-  //     $("#textArea").slideDown();
-  //     $('#apply').slideDown();
-  //     $('#mainFrame').css({ 'width': '80vw' });
-  //   }
-  // });
   window.addEventListener("keydown", e => {
     if (e.code == 'Tab') {
       $("#textArea").slideDown();
@@ -88,17 +47,9 @@ function main() {
       $('#mainFrame').css({ 'width': '80vw' });
     }
   });
-  /*$('html').on('keypress', (e) => {
-    if (e.code == 'KeyZ') {
-      $("#textArea").slideDown();
-      $('#apply').slideDown();
-      $('#mainFrame').css({ 'width': '80vw' });
-      canvas.requestPointerLock();
-    }
-  });*/
 
   //let sky = render.newSkySphere("./bin/textures/space.png");
-  //let sky = render.newSkySphere("./bin/textures/water.jpg");
+  let sky = render.newSkySphere("./bin/textures/water.jpg");
 
   const draw = () => {
     let p = getPlayers();
@@ -110,14 +61,6 @@ function main() {
         p.prims[player].render(mat4(p.players[player].coords.trans).mul(
           matrTranslate(p.players[player].coords.pos)
         ));
-        /*
-        pl_pr.mtl.shd = p.shaders[player];
-        pl_pr.mtl.attachTexture(p.avatars[player], 0);
-        pl_pr.render(
-          mat4(p.players[player].coords.trans).mul(
-            matrTranslate(p.players[player].coords.pos)
-          )
-        );*/
       }
     }
 
@@ -126,6 +69,7 @@ function main() {
     //    matrTranslate(vec3(0, 0, 0))
     //  )
     //);
+    sky.render(mat4(1));
     lab.render();
     render.renderEnd();
     window.requestAnimationFrame(draw);
