@@ -7,6 +7,7 @@ import { Control } from "./ctrl/ctrl.js";
 import { wsInit, onInterval, getPlayers } from "./ws.js";
 import { Labirint } from "./gen/lab.js";
 import { shaderUpdateInit } from "./shd_upd.js";
+import { Cows } from "./gen/cows.js";
 
 function main() {
   let figure = new Figure();
@@ -19,7 +20,7 @@ function main() {
   shaderUpdateInit(shader);
   let tex = render.newTexture("./bin/textures/em.jpg");
   render.setCam(vec3(5, 5, 5), vec3(0), vec3(0, 1, 0));
-  let lab = new Labirint(render, "./bin/labs/def.png");
+  let lab = new Labirint(render, "./bin/labs/def1.png");
   let pl_mtl = shader.newMaterial(
     vec3(0.1),
     vec3(1, 0.1, 0.1),
@@ -32,6 +33,7 @@ function main() {
   let f = new Figure();
   f.setCube();
   let pl_pr = f.makePrim(pl_mtl);
+  let cows = new Cows(lab);
 
   canvas.onclick = function () {
     $("#textArea").slideUp();
@@ -69,8 +71,9 @@ function main() {
     //    matrTranslate(vec3(0, 0, 0))
     //  )
     //);
-    sky.render(mat4(1));
+    //sky.render(mat4(1));
     lab.render();
+    cows.render();
     render.renderEnd();
     window.requestAnimationFrame(draw);
   };

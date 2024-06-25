@@ -7,7 +7,7 @@ export class Control {
         this.forward = vec3(0, 0, 1);
         this.right = vec3(1, 0, 0);
         this.up = vec3(0, 1, 0);
-        this.position = vec3(0);
+        this.position = vec3(22, 0, 22);
         this.moveSpeed = 3.0;
         this.sense = 0.0022;
         this.render = render;
@@ -66,28 +66,28 @@ export class Control {
         }
     }
     response() {
-        this.velocity -= this.acceleration * this.render.timer.globalDeltaTime;
-        this.position.y = this.position.y + this.velocity * this.render.timer.globalDeltaTime;
-        /*if (this.velocity < 0 && this.position.y >= 2.5) {
-        } else if (this.velocity > 0 && this.position.y < 2.5) {
-            this.position.y = this.position.y + this.velocity * this.render.timer.globalDeltaTime;
-        }*/
-        if (this.position.y < 2.5)
-            this.position.y = 2.5;
+        // this.velocity -= this.acceleration * this.render.timer.globalDeltaTime;
+        // this.position.y = this.position.y + this.velocity * this.render.timer.globalDeltaTime;
+        // /*if (this.velocity < 0 && this.position.y >= 2.5) {
+        // } else if (this.velocity > 0 && this.position.y < 2.5) {
+        //     this.position.y = this.position.y + this.velocity * this.render.timer.globalDeltaTime;
+        // }*/
+        // if (this.position.y < 2.5)
+        //     this.position.y = 2.5;
 
-        if (this.keyTab["KeyA"]) {
-            this.position = this.position.add(this.right.mul(this.moveSpeed * this.render.timer.globalDeltaTime));
-        } if (this.keyTab["KeyD"]) {
-            this.position = this.position.sub(this.right.mul(this.moveSpeed * this.render.timer.globalDeltaTime));
-        } if (this.keyTab["KeyW"]) {
-            this.position = this.position.add(vec3(this.forward.x, 0, this.forward.z).norm().mul(this.moveSpeed * this.render.timer.globalDeltaTime));
-        } if (this.keyTab["KeyS"]) {
-            this.position = this.position.sub(vec3(this.forward.x, 0, this.forward.z).norm().mul(this.moveSpeed * this.render.timer.globalDeltaTime));
-        } if (this.keyTab["ShiftLeft"]) {
-            this.position = this.position.sub(this.up.mul(this.moveSpeed * this.render.timer.globalDeltaTime));
-        } if (this.keyTab["Space"]) {
-            //this.position = this.position.add(this.up.mul(this.moveSpeed * this.render.timer.globalDeltaTime));
-        }
+        // if (this.keyTab["KeyA"]) {
+        //     this.position = this.position.add(this.right.mul(this.moveSpeed * this.render.timer.globalDeltaTime));
+        // } if (this.keyTab["KeyD"]) {
+        //     this.position = this.position.sub(this.right.mul(this.moveSpeed * this.render.timer.globalDeltaTime));
+        // } if (this.keyTab["KeyW"]) {
+        //     this.position = this.position.add(vec3(this.forward.x, 0, this.forward.z).norm().mul(this.moveSpeed * this.render.timer.globalDeltaTime));
+        // } if (this.keyTab["KeyS"]) {
+        //     this.position = this.position.sub(vec3(this.forward.x, 0, this.forward.z).norm().mul(this.moveSpeed * this.render.timer.globalDeltaTime));
+        // } if (this.keyTab["ShiftLeft"]) {
+        //     this.position = this.position.sub(this.up.mul(this.moveSpeed * this.render.timer.globalDeltaTime));
+        // } if (this.keyTab["Space"]) {
+        //     //this.position = this.position.add(this.up.mul(this.moveSpeed * this.render.timer.globalDeltaTime));
+        // }
         this.render.setCam(this.position, this.position.add(this.forward), this.up);
     }
 }
