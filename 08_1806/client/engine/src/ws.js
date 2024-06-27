@@ -22,9 +22,11 @@ export function wsInit(render) {
 
     tex = render.newTexture("./bin/textures/em.jpg");
 
-    socket.onopen = e => onConnection(socket, e);
+    socket.onopen = e => {
+      setInterval(() => onInterval(socket), 1);
+      onConnection(socket, e);
+    }
     socket.onmessage = e => onMessage(socket, JSON.parse(e.data));
-    setInterval(() => onInterval(socket), 1);
 }
 
 
