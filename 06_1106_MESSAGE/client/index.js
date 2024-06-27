@@ -81,9 +81,15 @@ function onMessage(event) {
 // Function to initialize websocket
 function initializeCommunication() {
     socket.onopen = (e) => {
-        console.log("socket open on client");
-        //socket.send(JSON.stringify({ client_start: true }));
-    }
+    console.log("socket open on client");
+    //socket.send(JSON.stringify({ client_start: true }));
+    setInterval(() => {
+        if (input_partner.value == "Global") {
+            socket.send(JSON.stringify({ get_global: true, user: input_name.value, partner: input_partner.value }));
+        } else {
+            socket.send(JSON.stringify({ get: true, user: input_name.value, partner: input_partner.value }));
+        }
+    }, 200);    }
     socket.onmessage = (e) => onMessage(e);
 }
 
@@ -145,14 +151,6 @@ window.addEventListener(
             socket.send(JSON.stringify({ client_start: true }));
         }
         */
-
-        setInterval(() => {
-            if (input_partner.value == "Global") {
-                socket.send(JSON.stringify({ get_global: true, user: input_name.value, partner: input_partner.value }));
-            } else {
-                socket.send(JSON.stringify({ get: true, user: input_name.value, partner: input_partner.value }));
-            }
-        }, 200);
 
         initializeCommunication();
     }

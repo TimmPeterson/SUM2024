@@ -1,3 +1,4 @@
+
 import http from "node:http";
 import fs from "node:fs/promises"; // for working with files
 import { WebSocketServer } from "ws";
@@ -10,13 +11,12 @@ import morgan from "morgan";
 /////
 
 const url =
-  "mongodb+srv://doadmin:x62jNC54Pi1W3t98@db-mongodb-pml30-2024-12312526.mongo.ondigitalocean.com/admin?tls=true&authSource=admin";
+ "mongodb+srv://doadmin:x62jNC54Pi1W3t98@db-mongodb-pml30-2024-12312526.mongo.ondigitalocean.com/admin?tls=true&authSource=admin";
 const Client = new MongoClient(url);
 const connection = await Client.connect();
 const dataBase = "PML30-2024-J";
 const db = connection.db(dataBase);
 const collection = db.collection("TP5");
-
 /////
 // End of mongo initialiation
 /////
