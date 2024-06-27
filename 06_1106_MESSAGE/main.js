@@ -1,4 +1,3 @@
-
 import http from "node:http";
 import fs from "node:fs/promises"; // for working with files
 import { WebSocketServer } from "ws";
