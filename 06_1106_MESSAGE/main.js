@@ -9,12 +9,13 @@ import morgan from "morgan";
 // Mongo initializing
 /////
 
-const url = "mongodb://127.0.0.1:27017";
+const url =
+  "mongodb+srv://doadmin:x62jNC54Pi1W3t98@db-mongodb-pml30-2024-12312526.mongo.ondigitalocean.com/admin?tls=true&authSource=admin";
 const Client = new MongoClient(url);
 const connection = await Client.connect();
-const dataBase = "Messenger";
+const dataBase = "PML30-2024-J";
 const db = connection.db(dataBase);
-const collection = db.collection("Users");
+const collection = db.collection("TP5");
 
 /////
 // End of mongo initialiation
