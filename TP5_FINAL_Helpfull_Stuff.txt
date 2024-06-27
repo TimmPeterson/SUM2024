@@ -1,0 +1,207 @@
+#version 300 es
+precision highp float;
+
+out vec4 OutColor;
+
+in vec3 DrawPos;
+in vec3 DrawNormal;
+in vec2 DrawTexCoord;
+
+uniform sampler2D uTex;
+
+uniform u_material {
+    vec4 Ka4;
+    vec4 KdTrans;
+    vec4 KsPh;
+    vec4 TexFlags;
+};
+
+// Uniform buffer for primitive.
+// Updates on each primitive rendering
+uniform u_primitive {
+    mat4 MatrWorld; // world transform matrix 
+    vec4 Time4;
+};
+
+#define Time Time4.x
+
+#define Ka Ka4.xyz
+#define Kd KdTrans.xyz
+#define Trans KdTrans.w
+#define Ks KsPh.xyz
+#define Ph KsPh.w
+
+float opSmoothUnion( float d1, float d2, float k )
+{
+    float h = clamp( 0.5 + 0.5*(d2-d1)/k, 0.0, 1.0 );
+    return mix( d2, d1, h ) - k*h*(1.0-h);
+}
+
+float sdSphere( vec3 p, float s )
+{
+  return length(p)-s;
+} 
+
+float map(vec3 p)
+{
+ float d = 2.0;
+ for (int i = 0; i < 16; i++) {
+  float fi = float(i);
+  float time = Time * (fract(fi * 412.531 + 0.513) - 0.5) * 2.0;
+  d = opSmoothUnion(
+            sdSphere(p + sin(time + fi * vec3(52.5126, 64.62744, 632.25)) * vec3(2.0, 2.0, 0.8), mix(0.5, 1.0, fract(fi * 412.531 + 0.5124))),
+   d,
+   0.4
+  );
+ }
+ return d;
+}
+
+vec3 calcNormal( in vec3 p )
+{
+    const float h = 1e-5; // or some other value
+    const vec2 k = vec2(1,-1);
+    return normalize( k.xyy*map( p + k.xyy*h ) + 
+                      k.yyx*map( p + k.yyx*h ) + 
+                      k.yxy*map( p + k.yxy*h ) + 
+                      k.xxx*map( p + k.xxx*h ) );
+}
+
+void main(void)
+{
+    vec2 uv = DrawTexCoord;
+
+    // screen size is 6m x 6m
+ vec3 rayOri = vec3((uv - 0.5) * vec2(1.0, 1.0) * 6.0, 3.0);
+ vec3 rayDir = vec3(0.0, 0.0, -1.0);
+ 
+ float depth = 0.0;
+ vec3 p;
+ 
+ for(int i = 0; i < 64; i++) {
+  p = rayOri + rayDir * depth;
+  float dist = map(p);
+        depth += dist;
+  if (dist < 1e-6) {
+   break;
+  }
+ }
+ 
+    depth = min(6.0, depth);
+ vec3 n = calcNormal(p);
+    float b = max(0.0, dot(n, vec3(0.577)));
+    vec3 col = (0.5 + 0.5 * cos((b + Time * 3.0) + uv.xyx * 2.0 + vec3(0,2,4))) * (0.85 + b * 0.35);
+    col *= exp( -depth * 0.15 );
+ 
+    // maximum thickness is 2m in alpha channel
+    OutColor = vec4(col, 1.0 - (depth - 0.5) / 2.0);
+}
+
+/*********************************************************************
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *********************************************************************/
+
+
+#version 300 es
+precision highp float;
+out vec4 OutColor;
+in vec3 DrawPos;
+in vec3 DrawNormal;
+in vec2 DrawTexCoord;
+uniform sampler2D uTex;
+uniform u_material {
+    vec4 Ka4;    
+    vec4 KdTrans;
+    vec4 KsPh;
+    vec4 TexFlags;
+};
+
+#define Ka Ka4.xyz
+#define Kd KdTrans.xyz
+#define Trans KdTrans.w
+#define Ks KsPh.xyz
+#define Ph KsPh.w
+uniform float Time;
+#define INF 1000000.0
+#define ZERO 0.00001
+struct INTERSECTION
+{
+    float MinDist;
+    vec3 Pos;
+    int ObjInd;
+};
+#define TYPE_BASIC 0
+#define TYPE_LIGHT 1
+
+struct OBJECT
+{
+    float R;
+    vec3 C, Color;
+    int Type;
+};
+
+#define NumOfObjects 4
+
+OBJECT Objects[NumOfObjects];
+float SphereDist(vec3 c, float r, vec3 p)
+{
+    return distance(c, p) - r;
+}
+vec3 SphereGetNorm(vec3 c, float r, vec3 p){
+    return (p - c) / r;}
+INTERSECTION RayCast(vec3 p, vec3 dir, float maxLen) {
+    INTERSECTION intersection;    vec3 start = p;
+    float MinDist = INF, Dist;
+    intersection.MinDist = INF;
+    intersection.Pos = p;    intersection.ObjInd = -1;
+    do {
+        MinDist = INF;        for (int i = 0; i < NumOfObjects; i++)
+        {            Dist = SphereDist(Objects[i].C, Objects[i].R, p);
+            if (Dist < MinDist) {
+                MinDist = Dist;                intersection.Pos = p;
+                intersection.ObjInd = i;                intersection.MinDist = MinDist;
+            }        }
+        p = p + dir * MinDist;
+    } while (MinDist > ZERO && distance(start, p) < maxLen);
+    return intersection;}
+void main( void )
+{    vec2 sp = (DrawTexCoord.xy) * 2.0 - vec2(1.0, 1.0);
+    float near = 0.1 * 20.0, far = 100.0;    vec3 p = sp.x * vec3(1, 0, 0) + sp.y * vec3(0, 1, 0) + vec3(0, 0, -1) * near;
+    vec3 dir = normalize(p);    float MinDist, Dist;
+    Objects[0].R = 1.0;
+    Objects[0].C = vec3(2, 2, -10);    Objects[0].Color = vec3(1, 1, 0);
+    Objects[0].Type = TYPE_LIGHT;
+    Objects[1].R = 2.0;    Objects[1].C = vec3(-0.5, -2, -15);
+    Objects[1].Color = vec3(1, 0, 1);    Objects[1].Type = TYPE_BASIC;
+    Objects[2].R = 3.0;
+    Objects[2].C = vec3(-0.3, 3, -14);    Objects[2].Color = vec3(0.5, 1, 0.4);
+    Objects[2].Type = TYPE_BASIC;
+    Objects[3].R = 4.0;
+    Objects[3].C = vec3(7, 0, -16);    Objects[3].Color = vec3(0.5, 1, 1);
+    Objects[3].Type = TYPE_BASIC;
+    INTERSECTION intersection;
+    vec3 color = vec3(0.0);
+    for (int i = 0; i < 5; i++)    {
+        intersection = RayCast(p + dir * ZERO * 7.0, dir, far);
+        vec3 n = SphereGetNorm(Objects[intersection.ObjInd].C, Objects[intersection.ObjInd].R, intersection.Pos);
+        dir = reflect(dir, n);        p = intersection.Pos;
+        int type = Objects[intersection.ObjInd].Type;
+        if (intersection.MinDist < 0.05)
+        {            vec3 c = Objects[intersection.ObjInd].Color;
+            if (type == TYPE_BASIC)
+            {                for (int i = 0; i < NumOfObjects; i++)
+                {                    if (Objects[i].Type != TYPE_LIGHT)
+                        continue;
+                    vec3 l = normalize(Objects[i].C - p);                    intersection = RayCast(p + l * ZERO * 7.0, l, 30.0);
+                    float d = max(0.1, dot(l, n));
+                    c *= d;
+                    if (Objects[intersection.ObjInd].Type != TYPE_LIGHT && intersection.MinDist <= ZERO)
+                    {                        c *= 0.3;
+                        //color = l;                        break;
+                    }                }
+            }
+            color += c * (1.0 / float(i + 1));        }
+        else            break;
+        if (type == TYPE_LIGHT)            break;
+    }
+    OutColor = vec4(color, 1);}
